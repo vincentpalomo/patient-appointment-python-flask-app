@@ -37,20 +37,19 @@ interface AppointmentWithDoctor extends UserProfile {
   imports: [CommonModule],
   template: `
     <div class="dashboard-container">
-      <div class="header">
+      <div class="patient-info-sidebar">
         <div class="user-info">
           <h2>Welcome, {{profile?.name || 'Patient'}}</h2>
           <p class="email">{{profile?.email}}</p>
           <p class="phone">Phone: {{profile?.phone}}</p>
+          <button class="logout-btn" (click)="logout()">Logout</button>
         </div>
-        <button (click)="logout()">Logout</button>
-      </div>
-      
-      <div class="actions">
-        <button (click)="navigateToBookAppointment()">Book New Appointment</button>
+        <div class="actions">
+          <button class="book-btn" (click)="navigateToBookAppointment()">Book New Appointment</button>
+        </div>
       </div>
 
-      <div class="appointments">
+      <div class="appointments-section">
         <h3>Your Appointments</h3>
         <div *ngIf="loading" class="loading">Loading appointments...</div>
         <div *ngIf="error" class="error">{{error}}</div>
@@ -93,39 +92,73 @@ interface AppointmentWithDoctor extends UserProfile {
           <p *ngIf="!profile?.appointments?.length" class="no-appointments">No appointments found.</p>
         </div>
       </div>
+
+      <div class="doctors-sidebar">
+        <h3>Available Doctors</h3>
+        <div class="doctors-list">
+          <div *ngFor="let doctor of doctors" class="doctor-card">
+            <div class="doctor-info">
+              <div class="doctor-name">{{doctor.name}}</div>
+              <div class="doctor-specialization">{{doctor.specialization || 'General Practice'}}</div>
+            </div>
+            <button class="book-btn" (click)="bookWithDoctor(doctor)">Book</button>
+          </div>
+        </div>
+      </div>
     </div>
   `,
   styles: [`
     .dashboard-container {
-      max-width: 800px;
-      margin: 20px auto;
+      display: grid;
+      grid-template-columns: 250px 1fr 300px;
+      gap: 20px;
       padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #eee;
+
+    .patient-info-sidebar {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      height: fit-content;
     }
+
+    .appointments-section {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .appointments-section h3 {
+      margin: 0 0 20px 0;
+      color: #333;
+    }
+
     .user-info {
-      flex: 1;
+      margin-bottom: 20px;
     }
+
     .user-info h2 {
       margin: 0 0 10px 0;
     }
+
     .email, .phone {
       margin: 5px 0;
       color: #666;
     }
+
     .actions {
       margin-bottom: 20px;
     }
+
     .appointment-list {
       display: grid;
       gap: 15px;
     }
+
     .appointment-card {
       border: 1px solid #e0e0e0;
       padding: 20px;
@@ -133,6 +166,7 @@ interface AppointmentWithDoctor extends UserProfile {
       background-color: white;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
+
     .appointment-header {
       display: flex;
       justify-content: space-between;
@@ -141,19 +175,23 @@ interface AppointmentWithDoctor extends UserProfile {
       padding-bottom: 15px;
       border-bottom: 1px solid #eee;
     }
+
     .appointment-time {
       flex: 1;
     }
+
     .date {
       font-size: 1.1em;
       font-weight: bold;
       color: #333;
       margin-bottom: 4px;
     }
+
     .time {
       color: #666;
       font-size: 0.9em;
     }
+
     .status {
       padding: 6px 12px;
       border-radius: 20px;
@@ -161,43 +199,53 @@ interface AppointmentWithDoctor extends UserProfile {
       font-size: 0.9em;
       text-transform: capitalize;
     }
+
     .status-scheduled {
       background-color: #e8f5e9;
       color: #2e7d32;
     }
+
     .appointment-details {
       display: grid;
       gap: 20px;
     }
+
     .doctor-info {
       margin-bottom: 15px;
     }
+
     .doctor-name {
       font-size: 1.2em;
       font-weight: 500;
       color: #333;
       margin-bottom: 4px;
     }
+
     .doctor-specialization {
       color: #666;
       font-size: 0.9em;
     }
+
     .contact-info {
       display: grid;
       gap: 10px;
     }
+
     .contact-item {
       display: flex;
       align-items: center;
       gap: 10px;
       color: #555;
     }
+
     .icon {
       font-size: 1.2em;
     }
+
     .text {
       font-size: 0.9em;
     }
+
     button {
       padding: 10px 20px;
       background-color: #4CAF50;
@@ -208,19 +256,23 @@ interface AppointmentWithDoctor extends UserProfile {
       font-size: 1em;
       transition: background-color 0.2s;
     }
+
     .cancel-btn {
       background-color: #f44336;
       margin-top: 20px;
       width: 100%;
     }
+
     button:hover {
       opacity: 0.9;
     }
+
     .loading {
       text-align: center;
       padding: 20px;
       color: #666;
     }
+
     .error {
       color: #f44336;
       padding: 10px;
@@ -228,17 +280,123 @@ interface AppointmentWithDoctor extends UserProfile {
       border-radius: 4px;
       margin-bottom: 10px;
     }
+
     .no-appointments {
       text-align: center;
       color: #666;
       padding: 20px;
     }
+
+    .doctors-sidebar {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      height: fit-content;
+    }
+
+    .doctors-sidebar h3 {
+      margin: 0 0 15px 0;
+      color: #333;
+    }
+
+    .doctors-list {
+      display: grid;
+      gap: 15px;
+    }
+
+    .doctor-card {
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .doctor-card .doctor-info {
+      flex: 1;
+    }
+
+    .doctor-card .doctor-name {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .doctor-card .doctor-specialization {
+      font-size: 0.9em;
+      color: #666;
+    }
+
+    .doctor-card .book-btn {
+      padding: 6px 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background-color 0.2s;
+    }
+
+    .doctor-card .book-btn:hover {
+      background: #45a049;
+    }
+
+    .logout-btn {
+      width: 100%;
+      margin-top: 10px;
+      background-color: #757575;
+    }
+
+    .logout-btn:hover {
+      background-color: #616161;
+    }
+
+    .book-btn {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 1200px) {
+      .dashboard-container {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .patient-info-sidebar {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .patient-info-sidebar,
+      .appointments-section,
+      .doctors-sidebar {
+        grid-column: 1;
+      }
+      
+      .doctors-sidebar {
+        order: 2;
+      }
+      
+      .appointments-section {
+        order: 3;
+      }
+    }
   `]
 })
 export class PatientDashboardComponent implements OnInit {
-  profile: AppointmentWithDoctor | null = null;
+  profile: any = null;
   loading: boolean = false;
   error: string | null = null;
+  doctors: any[] = [];
 
   constructor(
     private authService: AuthService,
@@ -248,6 +406,27 @@ export class PatientDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadProfile();
+    this.loadDoctors();
+  }
+
+  loadDoctors() {
+    this.appointmentService.getDoctors().subscribe({
+      next: (doctors) => {
+        console.log('Loaded doctors:', doctors);
+        this.doctors = doctors;
+      },
+      error: (error) => {
+        console.error('Error loading doctors:', error);
+        this.error = 'Failed to load doctors';
+      }
+    });
+  }
+
+  bookWithDoctor(doctor: any) {
+    // Navigate to book appointment page with pre-selected doctor
+    this.router.navigate(['/book-appointment'], { 
+      state: { selectedDoctor: doctor }
+    });
   }
 
   loadProfile() {

@@ -22,7 +22,30 @@ interface TimeSlot {
       <h2>Book Appointment</h2>
       
       <div class="form-group">
-        <label for="doctor">Select Doctor:</label>
+        <label for="search">Search Doctor:</label>
+        <div class="search-container">
+          <input
+            type="text"
+            id="search"
+            [(ngModel)]="searchTerm"
+            (input)="searchDoctor()"
+            placeholder="Search by name or specialization"
+            class="search-input"
+          >
+          <div class="search-results" *ngIf="searchTerm && filteredDoctors.length > 0">
+            <div 
+              *ngFor="let doctor of filteredDoctors" 
+              class="search-result-item"
+              (click)="selectDoctor(doctor)">
+              <span class="doctor-name">{{doctor.name}}</span>
+              <span class="doctor-specialization">{{doctor.specialization || 'General'}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="doctor">Selected Doctor:</label>
         <select id="doctor" [(ngModel)]="selectedDoctorId" (change)="onDoctorSelect()">
           <option value="">Select a doctor</option>
           <option *ngFor="let doctor of doctors" [value]="doctor.id">
@@ -169,6 +192,54 @@ interface TimeSlot {
       border: 1px solid #f44336;
       border-radius: 4px;
     }
+    .search-input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 5px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1em;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: #4CAF50;
+      box-shadow: 0 0 3px rgba(76, 175, 80, 0.3);
+    }
+    .search-container {
+      position: relative;
+    }
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .search-result-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s;
+    }
+    .search-result-item:hover {
+      background-color: #f5f5f5;
+    }
+    .doctor-name {
+      font-weight: 500;
+    }
+    .doctor-specialization {
+      color: #666;
+      font-size: 0.9em;
+    }
   `]
 })
 export class BookAppointmentComponent implements OnInit {
@@ -180,6 +251,8 @@ export class BookAppointmentComponent implements OnInit {
   error: string | null = null;
   doctorAppointments: any[] = [];
   canceledAppointments: any = {};
+  searchTerm: string = '';
+  filteredDoctors: User[] = [];
 
   timeSlots: TimeSlot[] = [
     { time: '09:00', label: '9:00 AM', isAvailable: true },
@@ -215,11 +288,26 @@ export class BookAppointmentComponent implements OnInit {
       next: (doctors) => {
         console.log('Loaded doctors:', doctors);
         this.doctors = doctors;
+        this.filteredDoctors = doctors;
       },
       error: (error) => {
         console.error('Error loading doctors:', error);
         this.error = 'Failed to load doctors. Please try again later.';
       }
+    });
+  }
+
+  searchDoctor() {
+    if (!this.searchTerm.trim()) {
+      this.filteredDoctors = [];
+      return;
+    }
+
+    const searchTermLower = this.searchTerm.toLowerCase();
+    this.filteredDoctors = this.doctors.filter(doctor => {
+      const nameMatch = doctor.name.toLowerCase().includes(searchTermLower);
+      const specializationMatch = (doctor.specialization || '').toLowerCase().includes(searchTermLower);
+      return nameMatch || specializationMatch;
     });
   }
 
@@ -351,5 +439,12 @@ export class BookAppointmentComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/patient-dashboard']);
+  }
+
+  selectDoctor(doctor: User) {
+    this.selectedDoctorId = doctor.id || null;
+    this.searchTerm = doctor.name; // Update search input with selected doctor's name
+    this.filteredDoctors = []; // Clear the filtered results to close dropdown
+    this.onDoctorSelect();
   }
 } 
