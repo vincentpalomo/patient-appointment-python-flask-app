@@ -167,7 +167,7 @@ export class PatientDashboardComponent implements OnInit {
         selectedDoctor: appointment.doctor,
         updateMode: true, // This will disable doctor selection
         isReschedule: true, // Add this flag to differentiate from regular updates
-        appointmentId: appointment.id // Pass the appointment ID for updating
+        appointmentId: null // No appointment ID since we're creating a new one
       },
       skipLocationChange: true
     });
@@ -246,5 +246,9 @@ export class PatientDashboardComponent implements OnInit {
       if (this.availableDoctorsSpecFilter === 'all') return true;
       return (doctor.specialization || 'General') === this.availableDoctorsSpecFilter;
     });
+  }
+
+  navigateToUpdateProfile() {
+    this.router.navigate(['/update-profile']);
   }
 } 

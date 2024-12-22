@@ -1,0 +1,84 @@
+.update-profile-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+.update-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  color: #555;
+  font-weight: 500;
+}
+
+input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  background: #2196F3;
+  color: white;
+  transition: background-color 0.2s;
+  flex: 1;
+}
+
+button:hover {
+  background: #1976D2;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: #757575;
+}
+
+button.secondary:hover {
+  background: #616161;
+}
+
+.error {
+  color: #f44336;
+  padding: 10px;
+  border: 1px solid #f44336;
+  border-radius: 4px;
+}

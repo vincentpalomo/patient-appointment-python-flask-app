@@ -236,8 +236,9 @@ export class BookAppointmentComponent implements OnInit {
       status: 'scheduled'
     };
 
-    // Always use updateAppointment when in update mode (including reschedule)
-    const appointmentObservable = this.updateMode && this.appointmentId
+    // If in update mode but not reschedule, use updateAppointment
+    // Otherwise use bookAppointment
+    const appointmentObservable = (this.updateMode && !this.isReschedule && this.appointmentId)
       ? this.appointmentService.updateAppointment(this.appointmentId, appointment.date, appointment.time)
       : this.appointmentService.bookAppointment(appointment, this.canceledAppointments[this.selectedTime]);
 

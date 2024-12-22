@@ -1,6 +1,6 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError, tap } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { isPlatformBrowser } from '@angular/common';
@@ -109,5 +109,24 @@ export class AuthService {
   // Get current user profile with appointments
   getUserProfile(): Observable<UserProfile> {
     return this.http.get<UserProfile>(`${this.apiUrl}/api/patients/profile`);
+  }
+
+  updateProfile(updateData: { name: string; email: string; phone: string }) {
+    const currentUser = this.getCurrentUser();
+    if (!currentUser?.id) {
+      return throwError(() => new Error('No user logged in'));
+    }
+
+    return this.http.put(`${this.apiUrl}/api/patients/profile`, updateData)
+      .pipe(
+        tap((response: any) => {
+          // Update stored user data
+          const updatedUser = {
+            ...currentUser,
+            ...updateData
+          };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+        })
+      );
   }
 } 

@@ -4,10 +4,13 @@
       <h2>Welcome, {{profile?.name || 'Patient'}}</h2>
       <p class="email">{{profile?.email}}</p>
       <p class="phone">Phone: {{profile?.phone}}</p>
-      <button class="logout-btn" (click)="logout()">Logout</button>
+      <div class="profile-actions">
+        <button class="btn btn-primary" (click)="navigateToUpdateProfile()">Update Profile</button>
+        <button class="btn btn-secondary" (click)="logout()">Logout</button>
+      </div>
     </div>
     <div class="actions">
-      <button class="book-btn" (click)="navigateToBookAppointment()">Book New Appointment</button>
+      <button class="btn btn-success" (click)="navigateToBookAppointment()">Book New Appointment</button>
     </div>
   </div>
 
@@ -79,15 +82,15 @@
 
           <div class="appointment-actions">
             <div class="action-buttons" *ngIf="appointment.status === 'scheduled'">
-              <button class="update-btn" (click)="updateAppointment(appointment)">
+              <button class="btn btn-primary" (click)="updateAppointment(appointment)">
                 Update
               </button>
-              <button class="cancel-btn" (click)="cancelAppointment(appointment.id)">
+              <button class="btn btn-danger" (click)="cancelAppointment(appointment.id)">
                 Cancel
               </button>
             </div>
             <div class="action-buttons" *ngIf="appointment.status === 'canceled'">
-              <button class="reschedule-btn" (click)="rescheduleAppointment(appointment)">
+              <button class="btn btn-warning" (click)="rescheduleAppointment(appointment)">
                 Reschedule
               </button>
             </div>
@@ -114,7 +117,7 @@
           <div class="doctor-name">{{doctor.name}}</div>
           <div class="doctor-specialization">{{doctor.specialization || 'General Practice'}}</div>
         </div>
-        <button class="book-btn" (click)="bookWithDoctor(doctor)">Book</button>
+        <button class="btn btn-success" (click)="bookWithDoctor(doctor)">Book</button>
       </div>
     </div>
   </div>
