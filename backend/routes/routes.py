@@ -130,10 +130,10 @@ def update_appointment(appointment_id):
             existing_appointment = Appointment.query.filter_by(
                 doctor_id=appointment.doctor_id,
                 appointment_time=new_time,
-                status='scheduled'
+                status='scheduled'  # Only check for scheduled appointments
             ).first()
             
-            if existing_appointment:
+            if existing_appointment and existing_appointment.id != appointment_id:
                 return jsonify({"msg": "Time slot is already taken"}), 400
 
         # Update appointment time and status
@@ -235,10 +235,11 @@ def create_appointment():
 
     appointment_time = datetime.strptime(data['appointment_time'], "%Y-%m-%d %H:%M")
 
-    # Check if the appointment time is already taken
+    # Check if the appointment time is already taken by a scheduled appointment
     existing_appointment = Appointment.query.filter_by(
         doctor_id=doctor.id,
-        appointment_time=appointment_time
+        appointment_time=appointment_time,
+        status='scheduled'  # Only check for scheduled appointments
     ).first()
 
     if existing_appointment:

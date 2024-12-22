@@ -12,8 +12,13 @@ import { RouterOutlet } from '@angular/router';
   `,
   styles: [`
     .app-container {
-      min-height: 95vh;
+      min-height: 98vh;
       background-color: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
     }
   `]
 })
