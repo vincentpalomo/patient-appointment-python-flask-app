@@ -161,7 +161,13 @@ def get_patients():
 @api.route('/api/doctors', methods=['GET'])
 def get_doctors():
     doctors = Doctor.query.filter_by(is_doctor=True).all()  # Filter for doctors
-    return jsonify([{'name': doctor.name, 'email': doctor.email, 'phone': doctor.phone, 'specialization': doctor.specialization} for doctor in doctors]), 200
+    return jsonify([{
+        'id': doctor.id,
+        'name': doctor.name, 
+        'email': doctor.email, 
+        'phone': doctor.phone, 
+        'specialization': doctor.specialization
+    } for doctor in doctors]), 200
 
 
 # Doctor routes
