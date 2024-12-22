@@ -1,0 +1,68 @@
+<div class="dashboard-container">
+  <div class="patient-info-sidebar">
+    <div class="user-info">
+      <h2>Welcome, {{profile?.name || 'Patient'}}</h2>
+      <p class="email">{{profile?.email}}</p>
+      <p class="phone">Phone: {{profile?.phone}}</p>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+    <div class="actions">
+      <button class="book-btn" (click)="navigateToBookAppointment()">Book New Appointment</button>
+    </div>
+  </div>
+
+  <div class="appointments-section">
+    <h3>Your Appointments</h3>
+    <div *ngIf="loading" class="loading">Loading appointments...</div>
+    <div *ngIf="error" class="error">{{error}}</div>
+    <div class="appointment-list" *ngIf="!loading && !error">
+      <div *ngFor="let appointment of profile?.appointments" class="appointment-card">
+        <div class="appointment-header">
+          <div class="appointment-time">
+            <div class="date">{{appointment.appointment_time | date:'fullDate'}}</div>
+            <div class="time">{{appointment.appointment_time | date:'shortTime'}}</div>
+          </div>
+          <span class="status" [class.status-scheduled]="appointment.status === 'scheduled'">
+            {{appointment.status}}
+          </span>
+        </div>
+
+        <div class="appointment-details" *ngIf="appointment.doctor">
+          <div class="doctor-info">
+            <div class="doctor-name">{{appointment.doctor.name}}</div>
+            <div class="doctor-specialization">{{appointment.doctor.specialization || 'General Practice'}}</div>
+          </div>
+          <div class="contact-info">
+            <div class="contact-item">
+              <span class="icon">📧</span>
+              <span class="text">{{appointment.doctor.email}}</span>
+            </div>
+            <div class="contact-item">
+              <span class="icon">📞</span>
+              <span class="text">{{appointment.doctor.phone}}</span>
+            </div>
+          </div>
+        </div>
+
+        <button *ngIf="appointment.status === 'scheduled'" (click)="cancelAppointment(appointment.id)"
+          class="cancel-btn">
+          Cancel Appointment
+        </button>
+      </div>
+      <p *ngIf="!profile?.appointments?.length" class="no-appointments">No appointments found.</p>
+    </div>
+  </div>
+
+  <div class="doctors-sidebar">
+    <h3>Available Doctors</h3>
+    <div class="doctors-list">
+      <div *ngFor="let doctor of doctors" class="doctor-card">
+        <div class="doctor-info">
+          <div class="doctor-name">{{doctor.name}}</div>
+          <div class="doctor-specialization">{{doctor.specialization || 'General Practice'}}</div>
+        </div>
+        <button class="book-btn" (click)="bookWithDoctor(doctor)">Book</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -17,230 +17,8 @@ interface TimeSlot {
   selector: 'app-book-appointment',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <div class="booking-container">
-      <h2>Book Appointment</h2>
-      
-      <div class="form-group">
-        <label for="search">Search Doctor:</label>
-        <div class="search-container">
-          <input
-            type="text"
-            id="search"
-            [(ngModel)]="searchTerm"
-            (input)="searchDoctor()"
-            placeholder="Search by name or specialization"
-            class="search-input"
-          >
-          <div class="search-results" *ngIf="searchTerm && filteredDoctors.length > 0">
-            <div 
-              *ngFor="let doctor of filteredDoctors" 
-              class="search-result-item"
-              (click)="selectDoctor(doctor)">
-              <span class="doctor-name">{{doctor.name}}</span>
-              <span class="doctor-specialization">{{doctor.specialization || 'General'}}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="doctor">Selected Doctor:</label>
-        <select id="doctor" [(ngModel)]="selectedDoctorId" (change)="onDoctorSelect()">
-          <option value="">Select a doctor</option>
-          <option *ngFor="let doctor of doctors" [value]="doctor.id">
-            {{doctor.name}} - {{doctor.specialization || 'General'}}
-          </option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="date">Select Date:</label>
-        <select id="date" [(ngModel)]="selectedDate" (change)="onDateSelect()" [disabled]="!selectedDoctorId">
-          <option value="">Select a date</option>
-          <option *ngFor="let slot of availableDates" [value]="slot.toISOString()">
-            {{slot | date:'fullDate'}}
-          </option>
-        </select>
-        <small class="hint" *ngIf="!selectedDoctorId">Please select a doctor first</small>
-      </div>
-
-      <div class="form-group">
-        <label for="time">Select Time:</label>
-        <div class="time-slots" [class.disabled]="!selectedDate">
-          <button 
-            *ngFor="let slot of timeSlots" 
-            class="time-slot"
-            [class.selected]="selectedTime === slot.time"
-            [class.unavailable]="!slot.isAvailable"
-            [disabled]="!selectedDate || !slot.isAvailable"
-            (click)="selectTime(slot.time)">
-            {{slot.label}}
-          </button>
-        </div>
-        <small class="hint" *ngIf="!selectedDate">Please select a date first</small>
-      </div>
-
-      <div class="actions">
-        <button (click)="bookAppointment()" [disabled]="!canBook">Book Appointment</button>
-        <button (click)="goBack()" class="secondary">Back</button>
-      </div>
-
-      <div *ngIf="error" class="error">{{error}}</div>
-    </div>
-  `,
-  styles: [`
-    .booking-container {
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 20px;
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-    }
-    select {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 5px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    select:disabled {
-      background-color: #f5f5f5;
-      cursor: not-allowed;
-    }
-    .time-slots {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .time-slots.disabled {
-      opacity: 0.7;
-      pointer-events: none;
-    }
-    .time-slot {
-      padding: 10px;
-      border: 1px solid #4CAF50;
-      border-radius: 4px;
-      background: #e8f5e9;
-      color: #2e7d32;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-weight: 500;
-    }
-    .time-slot:hover:not(:disabled) {
-      background: #4CAF50;
-      color: white;
-    }
-    .time-slot.selected {
-      background: #2e7d32;
-      color: white;
-      border-color: #2e7d32;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .time-slot.unavailable {
-      background: #f5f5f5;
-      color: #999;
-      border-color: #ddd;
-      cursor: not-allowed;
-      text-decoration: line-through;
-    }
-    .hint {
-      color: #666;
-      font-size: 0.8em;
-      font-style: italic;
-    }
-    .actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      background-color: #2e7d32;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 1em;
-      min-width: 120px;
-      transition: background-color 0.2s;
-    }
-    button:hover:not(:disabled) {
-      background-color: #1b5e20;
-    }
-    button:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
-    }
-    .secondary {
-      background-color: #757575;
-    }
-    .secondary:hover {
-      background-color: #616161;
-    }
-    .error {
-      color: #f44336;
-      padding: 10px;
-      margin-top: 20px;
-      border: 1px solid #f44336;
-      border-radius: 4px;
-    }
-    .search-input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 5px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1em;
-    }
-    .search-input:focus {
-      outline: none;
-      border-color: #4CAF50;
-      box-shadow: 0 0 3px rgba(76, 175, 80, 0.3);
-    }
-    .search-container {
-      position: relative;
-    }
-    .search-results {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: white;
-      border: 1px solid #ddd;
-      border-top: none;
-      border-radius: 0 0 4px 4px;
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .search-result-item {
-      padding: 8px 12px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background-color 0.2s;
-    }
-    .search-result-item:hover {
-      background-color: #f5f5f5;
-    }
-    .doctor-name {
-      font-weight: 500;
-    }
-    .doctor-specialization {
-      color: #666;
-      font-size: 0.9em;
-    }
-  `]
+  templateUrl: './book-appointment.component.html',
+  styleUrls: ['./book-appointment.component.css']
 })
 export class BookAppointmentComponent implements OnInit {
   doctors: User[] = [];
@@ -277,23 +55,37 @@ export class BookAppointmentComponent implements OnInit {
       date.setDate(today.getDate() + i);
       return date;
     });
+
+    // Check for pre-selected doctor from router state
+    const state = this.router.getCurrentNavigation()?.extras?.state as { selectedDoctor: any };
+    if (state?.selectedDoctor) {
+      this.selectedDoctorId = state.selectedDoctor.id;
+    }
   }
 
   ngOnInit() {
-    this.loadDoctors();
+    this.loadDoctors().then(() => {
+      if (this.selectedDoctorId) {
+        this.onDoctorSelect(); // Trigger loading of doctor's appointments after doctors are loaded
+      }
+    });
   }
 
   loadDoctors() {
-    this.appointmentService.getDoctors().subscribe({
-      next: (doctors) => {
-        console.log('Loaded doctors:', doctors);
-        this.doctors = doctors;
-        this.filteredDoctors = doctors;
-      },
-      error: (error) => {
-        console.error('Error loading doctors:', error);
-        this.error = 'Failed to load doctors. Please try again later.';
-      }
+    return new Promise<void>((resolve) => {
+      this.appointmentService.getDoctors().subscribe({
+        next: (doctors) => {
+          console.log('Loaded doctors:', doctors);
+          this.doctors = doctors;
+          this.filteredDoctors = doctors;
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error loading doctors:', error);
+          this.error = 'Failed to load doctors. Please try again later.';
+          resolve();
+        }
+      });
     });
   }
 

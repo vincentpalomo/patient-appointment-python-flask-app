@@ -1,0 +1,57 @@
+<div class="booking-container">
+  <h2>Book Appointment</h2>
+
+  <div class="form-group">
+    <label for="search">Search Doctor:</label>
+    <div class="search-container">
+      <input type="text" id="search" [(ngModel)]="searchTerm" (input)="searchDoctor()"
+        placeholder="Search by name or specialization" class="search-input">
+      <div class="search-results" *ngIf="searchTerm && filteredDoctors.length > 0">
+        <div *ngFor="let doctor of filteredDoctors" class="search-result-item" (click)="selectDoctor(doctor)">
+          <span class="doctor-name">{{doctor.name}}</span>
+          <span class="doctor-specialization">{{doctor.specialization || 'General'}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="doctor">Selected Doctor:</label>
+    <select id="doctor" [(ngModel)]="selectedDoctorId" (change)="onDoctorSelect()">
+      <option value="">Select a doctor</option>
+      <option *ngFor="let doctor of doctors" [value]="doctor.id">
+        {{doctor.name}} - {{doctor.specialization || 'General'}}
+      </option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="date">Select Date:</label>
+    <select id="date" [(ngModel)]="selectedDate" (change)="onDateSelect()" [disabled]="!selectedDoctorId">
+      <option value="">Select a date</option>
+      <option *ngFor="let slot of availableDates" [value]="slot.toISOString()">
+        {{slot | date:'fullDate'}}
+      </option>
+    </select>
+    <small class="hint" *ngIf="!selectedDoctorId">Please select a doctor first</small>
+  </div>
+
+  <div class="form-group">
+    <label for="time">Select Time:</label>
+    <div class="time-slots" [class.disabled]="!selectedDate">
+      <button *ngFor="let slot of timeSlots" class="time-slot" [class.selected]="selectedTime === slot.time"
+        [class.unavailable]="!slot.isAvailable" [disabled]="!selectedDate || !slot.isAvailable"
+        (click)="selectTime(slot.time)">
+        {{slot.label}}
+      </button>
+    </div>
+    <small class="hint" *ngIf="!selectedDate">Please select a date first</small>
+  </div>
+
+  <div class="actions">
+    <button (click)="bookAppointment()" [disabled]="!canBook">Book Appointment</button>
+    <button (click)="goBack()" class="secondary">Back</button>
+  </div>
+
+  <div *ngIf="error" class="error">{{error}}</div>
+</div>
