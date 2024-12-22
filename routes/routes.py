@@ -118,9 +118,9 @@ def update_appointment(appointment_id):
         return jsonify({"msg": message}), 400 
     
     # Validate appointment status
-    is_valid, message = validate_appointment_status(data['status'])
-    if not is_valid:
-        return jsonify({"msg": message}), 400
+    # is_valid, message = validate_appointment_status(data['status'])
+    # if not is_valid:
+    #     return jsonify({"msg": message}), 400
 
     new_time = datetime.strptime(data['appointment_time'], "%Y-%m-%d %H:%M")
 
@@ -216,9 +216,9 @@ def create_appointment():
         return jsonify({"msg": "Time slot is already taken"}), 400
     
     # Validate appointment status
-    is_valid, message = validate_appointment_status(data['status'])
-    if not is_valid:
-        return jsonify({"msg": message}), 400
+    # is_valid, message = validate_appointment_status(data['status'])
+    # if not is_valid:
+    #     return jsonify({"msg": message}), 400
     
     # Validate appointment time
     is_valid, message = validate_appointment_time(data['appointment_time'])
