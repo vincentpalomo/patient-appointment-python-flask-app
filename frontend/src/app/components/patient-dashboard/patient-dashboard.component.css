@@ -125,9 +125,19 @@
   text-transform: capitalize;
 }
 
+.status-completed {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
 .status-scheduled {
-  background-color: #e8f5e9;
+  background: #e8f5e9;
   color: #2e7d32;
+}
+
+.status-canceled {
+  background: #ffebee;
+  color: #c62828;
 }
 
 .card-content {

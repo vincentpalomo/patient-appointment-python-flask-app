@@ -57,6 +57,15 @@ def get_patient_profile():
     patient = Patient.query.get_or_404(current_user_id)
 
     appointments = Appointment.query.filter_by(patient_id=current_user_id).all()
+    current_time = datetime.now()
+
+    # Update status of past appointments to completed
+    for appointment in appointments:
+        if (appointment.status == 'scheduled' and 
+            appointment.appointment_time < current_time):
+            appointment.status = 'completed'
+    
+    db.session.commit()
 
     profile_data = {
         'id': patient.id,

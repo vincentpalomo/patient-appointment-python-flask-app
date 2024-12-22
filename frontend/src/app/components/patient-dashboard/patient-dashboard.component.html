@@ -23,6 +23,7 @@
         <select [(ngModel)]="statusFilter">
           <option value="all">All Status</option>
           <option value="scheduled">Scheduled</option>
+          <option value="completed">Completed</option>
           <option value="canceled">Canceled</option>
         </select>
 
@@ -102,6 +103,11 @@
               </button>
               <button class="btn btn-warning" (click)="rescheduleAppointment(appointment)">
                 Reschedule
+              </button>
+            </div>
+            <div class="action-buttons" *ngIf="appointment.status === 'completed'">
+              <button class="btn btn-info" (click)="viewDetails(appointment)">
+                View Details
               </button>
             </div>
           </div>

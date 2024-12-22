@@ -191,9 +191,21 @@ export class BookAppointmentComponent implements OnInit {
   updateAvailableTimeSlots() {
     const selectedDate = new Date(this.selectedDate);
     selectedDate.setHours(0, 0, 0, 0);
+    const currentDate = new Date();
 
     // Reset all slots to available
     this.resetTimeSlots();
+
+    // If selected date is today, disable past time slots
+    if (selectedDate.toDateString() === currentDate.toDateString()) {
+      const currentHour = currentDate.getHours();
+      this.timeSlots.forEach(slot => {
+        const slotHour = parseInt(slot.time.split(':')[0]);
+        if (slotHour <= currentHour) {
+          slot.isAvailable = false;
+        }
+      });
+    }
 
     // Keep track of canceled appointments that can be rescheduled
     this.canceledAppointments = {};
