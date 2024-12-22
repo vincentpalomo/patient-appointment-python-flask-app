@@ -2,6 +2,8 @@
   <div class="patient-info-sidebar">
     <div class="user-info">
       <h2>Welcome, {{profile?.name || 'Patient'}}</h2>
+      <h3>{{currentDate}}</h3>
+      <p>Patient ID: {{profile?.id}}</p>
       <p class="email">{{profile?.email}}</p>
       <p class="phone">Phone: {{profile?.phone}}</p>
       <div class="profile-actions">

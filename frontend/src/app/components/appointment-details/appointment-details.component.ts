@@ -63,8 +63,16 @@ import { Router } from '@angular/router';
     </div>
   `,
   styles: [`
+    :host {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+    }
+
     .details-container {
-      max-width: 800px;
+      max-width: 1400px;
       margin: 40px auto;
       padding: 20px;
     }
@@ -74,6 +82,7 @@ import { Router } from '@angular/router';
       border-radius: 8px;
       padding: 30px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 600px;
     }
 
     .header {

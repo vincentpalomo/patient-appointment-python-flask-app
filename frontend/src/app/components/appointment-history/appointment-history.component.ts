@@ -24,6 +24,7 @@ Chart.register(...registerables);
         <div class="summary">
           <p>Total Appointments: {{appointments.length}}</p>
           <p>Scheduled: {{getStatusCount('scheduled')}}</p>
+          <p>Completed: {{getStatusCount('completed')}}</p>
           <p>Canceled: {{getStatusCount('canceled')}}</p>
         </div>
 
@@ -45,7 +46,8 @@ Chart.register(...registerables);
                 <td>{{appointment.doctor?.specialization || 'General Practice'}}</td>
                 <td>
                   <span class="status" [class.status-scheduled]="appointment.status === 'scheduled'"
-                                     [class.status-canceled]="appointment.status === 'canceled'">
+                                     [class.status-canceled]="appointment.status === 'canceled'"
+                                     [class.status-completed]="appointment.status === 'completed'">
                     {{appointment.status}}
                   </span>
                 </td>
@@ -62,8 +64,16 @@ Chart.register(...registerables);
     </div>
   `,
   styles: [`
+    :host {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+    }
+
     .history-container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 40px auto;
       padding: 20px;
     }
@@ -147,6 +157,11 @@ Chart.register(...registerables);
       color: #c62828;
     }
 
+    .status-completed {
+      background: #e3f2fd;
+      color: #1565c0;
+    }
+
     .summary {
       margin: 30px 0;
       padding: 20px;
@@ -205,7 +220,7 @@ export class AppointmentHistoryComponent implements OnInit {
 
   createAppointmentChart() {
     // Create data points for the line graph
-    const appointmentsByDate = new Map<string, { scheduled: number; canceled: number }>();
+    const appointmentsByDate = new Map<string, { scheduled: number; completed: number; canceled: number }>();
     
     // Sort appointments by date
     const sortedAppointments = [...this.appointments].sort(
@@ -214,6 +229,7 @@ export class AppointmentHistoryComponent implements OnInit {
 
     // Initialize counters
     let scheduledCount = 0;
+    let completedCount = 0;
     let canceledCount = 0;
 
     // Process appointments to create cumulative data
@@ -221,10 +237,12 @@ export class AppointmentHistoryComponent implements OnInit {
       const date = new Date(apt.appointment_time).toLocaleDateString();
       
       if (apt.status === 'scheduled') scheduledCount++;
+      if (apt.status === 'completed') completedCount++;
       if (apt.status === 'canceled') canceledCount++;
 
       appointmentsByDate.set(date, {
         scheduled: scheduledCount,
+        completed: completedCount,
         canceled: canceledCount
       });
     });
@@ -232,6 +250,7 @@ export class AppointmentHistoryComponent implements OnInit {
     // Prepare data for the chart
     const labels = Array.from(appointmentsByDate.keys());
     const scheduledData = Array.from(appointmentsByDate.values()).map(v => v.scheduled);
+    const completedData = Array.from(appointmentsByDate.values()).map(v => v.completed);
     const canceledData = Array.from(appointmentsByDate.values()).map(v => v.canceled);
 
     const ctx = document.getElementById('appointmentStats') as HTMLCanvasElement;
@@ -245,6 +264,14 @@ export class AppointmentHistoryComponent implements OnInit {
             data: scheduledData,
             borderColor: 'rgba(75, 192, 192, 1)',
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Completed Appointments',
+            data: completedData,
+            borderColor: 'rgba(3, 169, 244, 1)',
+            backgroundColor: 'rgba(3, 169, 244, 0.2)',
             tension: 0.4,
             fill: true
           },

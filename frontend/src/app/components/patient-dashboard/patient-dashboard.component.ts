@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { AppointmentService } from '../../services/appointment.service';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { DatePipe } from '@angular/common';
 
 interface UserProfile {
   id: number;
@@ -44,7 +45,8 @@ export class PatientDashboardComponent implements OnInit {
   loading: boolean = false;
   error: string | null = null;
   doctors: any[] = [];
-
+  currentDate: string = '';
+  datePipe: DatePipe = new DatePipe('en-US');
   // Filter states
   statusFilter: string = 'all'; // 'all', 'scheduled', 'canceled'
   sortOrder: string = 'new'; // 'new', 'old'
@@ -61,6 +63,7 @@ export class PatientDashboardComponent implements OnInit {
   ngOnInit() {
     this.loadProfile();
     this.loadDoctors();
+    this.currentDate = this.datePipe.transform(new Date(), 'fullDate') || '';
   }
 
   loadDoctors() {

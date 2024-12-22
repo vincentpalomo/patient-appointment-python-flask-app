@@ -1,5 +1,13 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 500px;
+}
+
 .update-profile-container {
-  max-width: 500px;
+  width: 900px;
   margin: 40px auto;
   padding: 20px;
   background: white;

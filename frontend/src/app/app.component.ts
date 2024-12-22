@@ -13,7 +13,7 @@ import { RouterOutlet } from '@angular/router';
   styles: [`
     .app-container {
       min-height: 98vh;
-      background-color: #f5f5f5;
+      background-color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
