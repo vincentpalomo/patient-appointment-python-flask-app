@@ -59,35 +59,39 @@
           </span>
         </div>
 
-        <div class="appointment-details" *ngIf="appointment.doctor">
-          <div class="doctor-info">
-            <div class="doctor-name">{{appointment.doctor.name}}</div>
-            <div class="doctor-specialization">{{appointment.doctor.specialization || 'General Practice'}}</div>
-          </div>
-          <div class="contact-info">
-            <div class="contact-item">
-              <span class="icon">📧</span>
-              <span class="text">{{appointment.doctor.email}}</span>
+        <div class="card-content">
+          <div class="appointment-details" *ngIf="appointment.doctor">
+            <div class="doctor-info">
+              <div class="doctor-name">{{appointment.doctor.name}}</div>
+              <div class="doctor-specialization">{{appointment.doctor.specialization || 'General Practice'}}</div>
             </div>
-            <div class="contact-item">
-              <span class="icon">📞</span>
-              <span class="text">{{appointment.doctor.phone}}</span>
+            <div class="contact-info">
+              <div class="contact-item">
+                <span class="icon">📧</span>
+                <span class="text">{{appointment.doctor.email}}</span>
+              </div>
+              <div class="contact-item">
+                <span class="icon">📞</span>
+                <span class="text">{{appointment.doctor.phone}}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="appointment-actions" *ngIf="appointment.status === 'scheduled'">
-          <button class="update-btn" (click)="updateAppointment(appointment)">
-            Update Appointment
-          </button>
-          <button class="cancel-btn" (click)="cancelAppointment(appointment.id)">
-            Cancel Appointment
-          </button>
-        </div>
-        <div class="appointment-actions" *ngIf="appointment.status === 'canceled'">
-          <button class="reschedule-btn" (click)="rescheduleAppointment(appointment)">
-            Reschedule Appointment
-          </button>
+          <div class="appointment-actions">
+            <div class="action-buttons" *ngIf="appointment.status === 'scheduled'">
+              <button class="update-btn" (click)="updateAppointment(appointment)">
+                Update
+              </button>
+              <button class="cancel-btn" (click)="cancelAppointment(appointment.id)">
+                Cancel
+              </button>
+            </div>
+            <div class="action-buttons" *ngIf="appointment.status === 'canceled'">
+              <button class="reschedule-btn" (click)="rescheduleAppointment(appointment)">
+                Reschedule
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       <p *ngIf="!filteredAppointments.length" class="no-appointments">No appointments found.</p>

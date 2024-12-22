@@ -167,7 +167,7 @@ export class PatientDashboardComponent implements OnInit {
         selectedDoctor: appointment.doctor,
         updateMode: true, // This will disable doctor selection
         isReschedule: true, // Add this flag to differentiate from regular updates
-        appointmentId: null // No appointment ID since we're creating a new one
+        appointmentId: appointment.id // Pass the appointment ID for updating
       },
       skipLocationChange: true
     });

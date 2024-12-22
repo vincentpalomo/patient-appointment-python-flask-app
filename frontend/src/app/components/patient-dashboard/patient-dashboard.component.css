@@ -89,13 +89,14 @@
   border-radius: 8px;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 15px;
 }
 
 .appointment-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   padding-bottom: 15px;
   border-bottom: 1px solid #eee;
 }
@@ -129,9 +130,15 @@
   color: #2e7d32;
 }
 
-.appointment-details {
-  display: grid;
+.card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 20px;
+}
+
+.appointment-details {
+  flex: 1;
 }
 
 .doctor-info {
@@ -170,25 +177,54 @@
   font-size: 0.9em;
 }
 
-button {
-  padding: 10px 20px;
-  background-color: #4CAF50;
-  color: white;
+.appointment-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 120px;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.update-btn,
+.cancel-btn,
+.reschedule-btn {
+  padding: 8px 16px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 1em;
+  font-size: 0.9em;
+  color: white;
+  width: 100%;
   transition: background-color 0.2s;
+}
+
+.update-btn {
+  background-color: #2196F3;
+}
+
+.update-btn:hover {
+  background-color: #1976D2;
 }
 
 .cancel-btn {
   background-color: #f44336;
-  margin-top: 20px;
-  width: 100%;
 }
 
-button:hover {
-  opacity: 0.9;
+.cancel-btn:hover {
+  background-color: #d32f2f;
+}
+
+.reschedule-btn {
+  background-color: #FF9800;
+}
+
+.reschedule-btn:hover {
+  background-color: #F57C00;
 }
 
 .loading {
@@ -342,28 +378,6 @@ button:hover {
   }
 }
 
-.appointment-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.update-btn {
-  flex: 1;
-  background-color: #2196F3;
-}
-
-.update-btn:hover {
-  background-color: #1976D2;
-}
-
-.cancel-btn {
-  flex: 1;
-  background-color: #f44336;
-  margin-top: 0;
-  width: auto;
-}
-
 .filters {
   margin-bottom: 20px;
   background: white;
@@ -415,19 +429,4 @@ button:hover {
 .doctors-filter select {
   width: 100%;
   min-width: 0;
-}
-
-.reschedule-btn {
-  flex: 1;
-  background-color: #FF9800;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.reschedule-btn:hover {
-  background-color: #F57C00;
 }
