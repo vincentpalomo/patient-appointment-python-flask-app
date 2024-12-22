@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
     ports:
-      - "3000:3000"
+      - "3010:3000"
     depends_on:
       - backend
     environment:
@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     ports:
-      - "5000:5000"
+      - "5010:5000"
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
