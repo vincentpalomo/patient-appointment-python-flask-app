@@ -36,12 +36,17 @@ Create a fullstack application for managing patient appointments. The applicatio
    - **Search Functionality**: Implement a method to search for doctors by name or specialization.
 
 2. **API Endpoints**:
-   - `POST /api/patients` - Create a new patient
-   - `POST /api/doctors` - Create a new doctor
-   - `POST /api/appointments` - Book an appointment
-   - `GET /api/appointments` - View all appointments
-   - `DELETE /api/appointments/{id}` - Cancel an appointment
-   - `GET /api/doctors/search` - Search for doctors by name or specialization
+   - `POST /api/patients/register` - Create a new patient
+   - `POST /api/patients/login` - Login a patient
+   - `GET /api/patients/profile` - Get a patient's profile
+   - `PUT /api/patients/profile` - Update patient information
+   - `PUT /api/appointments/<int:appointment_id>` - Update an appointment
+   - `DELETE /api/appointments/<int:appointment_id>` - Cancel an appointment
+   - `GET /api/patients` - Get all patients
+   - `GET /api/doctors` - Get all doctors
+   - `GET /api/doctors/<int:doctor_id>/appointments` - Get a doctor's schedule
+   - `POST /api/appointments/create` - Create an appointment
+   - `GET /api/appointments` - Get all appointments
 
 3. **Error Handling**:
    - Implement error handling for invalid inputs and server errors in API responses.
@@ -82,6 +87,24 @@ Create a fullstack application for managing patient appointments. The applicatio
 
 ### Documentation Standards
 - Use Swagger or similar tools for API documentation.
+
+## API Routes
+### Patient Routes
+- **POST** `/api/patients/register` - Register a new patient
+- **POST** `/api/patients/login` - Login a patient
+- **GET** `/api/patients/profile` - Get a patient's profile
+- **PUT** `/api/patients/profile` - Update patient information
+- **DELETE** `/api/patients/<int:appointment_id>` - Cancel an appointment
+- **GET** `/api/patients` - Get all patients
+
+### Doctor Routes
+- **GET** `/api/doctors` - Get all doctors
+- **GET** `/api/doctors/<int:doctor_id>/appointments` - Get a doctor's schedule
+
+### Appointment Routes
+- **POST** `/api/appointments/create` - Create an appointment
+- **PUT** `/api/appointments/<int:appointment_id>` - Update an appointment
+- **GET** `/api/appointments` - Get all appointments
 
 ## Additional Notes
 - Follow best practices for coding and documentation.
