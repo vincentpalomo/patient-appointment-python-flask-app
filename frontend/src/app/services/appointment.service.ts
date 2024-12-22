@@ -51,12 +51,17 @@ export class AppointmentService {
   }
 
   // Update an appointment
-  updateAppointment(appointmentId: number, date: Date, time: string, notes: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/api/appointments/${appointmentId}`, {
-      appointment_time: this.formatDateTime(date, time),
-      notes: notes,
-      status: 'scheduled'
-    });
+  updateAppointment(appointmentId: number, date: Date | null, time: string | null, notes: string): Observable<any> {
+    const data: any = { notes };
+    
+    // Only include date and time if they are provided (not null)
+    if (date && time) {
+      const formattedDate = this.formatDateTime(date, time);
+      data.appointment_time = formattedDate;
+      data.status = 'scheduled';
+    }
+
+    return this.http.put(`${this.apiUrl}/api/appointments/${appointmentId}`, data);
   }
 
   // Get all doctors

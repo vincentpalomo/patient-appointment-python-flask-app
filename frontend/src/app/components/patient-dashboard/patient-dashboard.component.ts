@@ -147,10 +147,11 @@ export class PatientDashboardComponent implements OnInit {
   }
 
   updateAppointment(appointment: any) {
-    // Navigate to book appointment page with pre-filled data
+    // Navigate to book appointment page with pre-filled data for time rescheduling
     this.router.navigate(['/book-appointment'], { 
       state: { 
         updateMode: true,
+        notesOnlyUpdate: false,  // Explicitly set to false for time rescheduling
         appointmentId: appointment.id,
         selectedDoctor: appointment.doctor,
         currentDate: appointment.appointment_time,
@@ -169,6 +170,22 @@ export class PatientDashboardComponent implements OnInit {
         updateMode: true,
         isReschedule: true,
         appointmentId: appointment.id,
+        currentNotes: appointment.notes
+      },
+      skipLocationChange: true
+    });
+  }
+
+  updateNotes(appointment: any) {
+    // Navigate to book appointment page with pre-filled data and notes-only mode
+    this.router.navigate(['/book-appointment'], { 
+      state: { 
+        updateMode: true,
+        notesOnlyUpdate: true,  // New flag for notes-only update
+        appointmentId: appointment.id,
+        selectedDoctor: appointment.doctor,
+        currentDate: appointment.appointment_time,
+        currentTime: appointment.appointment_time.split(' ')[1].substring(0, 5),
         currentNotes: appointment.notes
       },
       skipLocationChange: true
@@ -259,5 +276,14 @@ export class PatientDashboardComponent implements OnInit {
       state: { appointment },
       skipLocationChange: true
     });
+  }
+
+  viewAppointmentHistory() {
+    if (this.profile?.appointments) {
+      this.router.navigate(['/appointment-history'], { 
+        state: { appointments: this.profile.appointments },
+        skipLocationChange: true
+      });
+    }
   }
 } 

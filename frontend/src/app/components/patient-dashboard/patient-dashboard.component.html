@@ -6,6 +6,7 @@
       <p class="phone">Phone: {{profile?.phone}}</p>
       <div class="profile-actions">
         <button class="btn btn-primary" (click)="navigateToUpdateProfile()">Update Profile</button>
+        <button class="btn btn-info" (click)="viewAppointmentHistory()">View History</button>
         <button class="btn btn-secondary" (click)="logout()">Logout</button>
       </div>
     </div>
@@ -85,8 +86,11 @@
               <button class="btn btn-info" (click)="viewDetails(appointment)">
                 View Details
               </button>
+              <button class="btn btn-primary" (click)="updateNotes(appointment)">
+                Update Notes
+              </button>
               <button class="btn btn-primary" (click)="updateAppointment(appointment)">
-                Update
+                Reschedule Time
               </button>
               <button class="btn btn-danger" (click)="cancelAppointment(appointment.id)">
                 Cancel

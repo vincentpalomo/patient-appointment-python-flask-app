@@ -28,7 +28,7 @@
     </small>
   </div>
 
-  <div class="form-group">
+  <div class="form-group" *ngIf="!notesOnlyUpdate">
     <label for="date">Select Date:</label>
     <select id="date" [(ngModel)]="selectedDate" (change)="onDateSelect()" [disabled]="!selectedDoctorId">
       <option value="">Select a date</option>
@@ -39,7 +39,7 @@
     <small class="hint" *ngIf="!selectedDoctorId && !updateMode">Please select a doctor first</small>
   </div>
 
-  <div class="form-group">
+  <div class="form-group" *ngIf="!notesOnlyUpdate">
     <label for="time">Select Time:</label>
     <div class="time-slots" [class.disabled]="!selectedDate">
       <button *ngFor="let slot of timeSlots" class="time-slot" [class.selected]="selectedTime === slot.time"
@@ -58,8 +58,9 @@
   </div>
 
   <div class="actions">
-    <button (click)="bookAppointment()" [disabled]="!canBook">
-      {{isReschedule ? 'Reschedule' : (updateMode ? 'Update' : 'Book')}} Appointment
+    <button (click)="bookAppointment()" [disabled]="!notesOnlyUpdate && !canBook">
+      {{isReschedule ? 'Reschedule' : (updateMode ? (notesOnlyUpdate ? 'Update Notes' : 'Update Time') : 'Book')}}
+      Appointment
     </button>
     <button (click)="goBack()" class="secondary">Back</button>
   </div>

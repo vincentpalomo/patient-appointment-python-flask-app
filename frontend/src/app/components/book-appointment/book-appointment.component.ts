@@ -22,7 +22,7 @@ interface TimeSlot {
 })
 export class BookAppointmentComponent implements OnInit {
   doctors: User[] = [];
-  selectedDoctorId: number | null = null;
+  selectedDoctorId?: number | null;
   selectedDate: string = '';
   selectedTime: string = '';
   notes: string = '';
@@ -35,6 +35,7 @@ export class BookAppointmentComponent implements OnInit {
   updateMode: boolean = false;
   isReschedule: boolean = false;
   appointmentId: number | null = null;
+  notesOnlyUpdate: boolean = false;
 
   timeSlots: TimeSlot[] = [
     { time: '09:00', label: '9:00 AM', isAvailable: true },
@@ -65,6 +66,7 @@ export class BookAppointmentComponent implements OnInit {
       selectedDoctor: any,
       updateMode: boolean,
       isReschedule: boolean,
+      notesOnlyUpdate: boolean,
       appointmentId: number,
       currentDate: string,
       currentTime: string,
@@ -78,10 +80,11 @@ export class BookAppointmentComponent implements OnInit {
       if (state.updateMode) {
         this.updateMode = true;
         this.isReschedule = state.isReschedule || false;
+        this.notesOnlyUpdate = state.notesOnlyUpdate || false;
         this.appointmentId = state.appointmentId;
         
         if (!this.isReschedule) {
-          // Only set date and time for updates, not reschedules
+          // Set date and time for updates
           this.selectedDate = new Date(state.currentDate).toISOString();
           this.selectedTime = state.currentTime;
         }
@@ -232,7 +235,7 @@ export class BookAppointmentComponent implements OnInit {
   }
 
   bookAppointment() {
-    if (!this.selectedDoctorId) {
+    if (!this.selectedDoctorId && !this.notesOnlyUpdate) {
       this.error = 'Please select a doctor';
       return;
     }
@@ -243,9 +246,25 @@ export class BookAppointmentComponent implements OnInit {
       return;
     }
 
+    if (this.notesOnlyUpdate && this.appointmentId) {
+      // For notes-only updates, we don't need to send date and time
+      this.appointmentService.updateAppointment(this.appointmentId, null, null, this.notes)
+        .subscribe({
+          next: () => {
+            alert('Notes updated successfully!');
+            this.router.navigate(['/patient-dashboard']);
+          },
+          error: (error) => {
+            console.error('Error updating notes:', error);
+            this.error = error.error?.msg || 'Failed to update notes. Please try again.';
+          }
+        });
+      return;
+    }
+
     const appointment: Appointment = {
       patientId: currentUser.id,
-      doctorId: this.selectedDoctorId,
+      doctorId: this.selectedDoctorId!,
       date: new Date(this.selectedDate),
       time: this.selectedTime,
       status: 'scheduled',

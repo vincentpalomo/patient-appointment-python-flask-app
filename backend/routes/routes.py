@@ -111,34 +111,38 @@ def update_appointment(appointment_id):
 
     data = request.get_json()
 
-    # Validate appointment time
-    is_valid, message = validate_appointment_time(data['appointment_time'])
-    if not is_valid:
-        return jsonify({"msg": message}), 400
-
-    new_time = datetime.strptime(data['appointment_time'], "%Y-%m-%d %H:%M")
-
     # Get the appointment
     appointment = Appointment.query.get(appointment_id)
     if not appointment or appointment.patient_id != current_user_id:
         return jsonify({"msg": "Appointment not found or you do not have permission to update it"}), 404
 
-    # Check if the new time slot is available (unless it's the same time as current appointment)
-    if appointment.appointment_time != new_time:
-        existing_appointment = Appointment.query.filter_by(
-            doctor_id=appointment.doctor_id,
-            appointment_time=new_time,
-            status='scheduled'
-        ).first()
-        
-        if existing_appointment:
-            return jsonify({"msg": "Time slot is already taken"}), 400
+    # If appointment_time is provided, validate and update it
+    if 'appointment_time' in data:
+        # Validate appointment time
+        is_valid, message = validate_appointment_time(data['appointment_time'])
+        if not is_valid:
+            return jsonify({"msg": message}), 400
 
-    # Update appointment time, notes, and status
-    appointment.appointment_time = new_time
+        new_time = datetime.strptime(data['appointment_time'], "%Y-%m-%d %H:%M")
+
+        # Check if the new time slot is available (unless it's the same time as current appointment)
+        if appointment.appointment_time != new_time:
+            existing_appointment = Appointment.query.filter_by(
+                doctor_id=appointment.doctor_id,
+                appointment_time=new_time,
+                status='scheduled'
+            ).first()
+            
+            if existing_appointment:
+                return jsonify({"msg": "Time slot is already taken"}), 400
+
+        # Update appointment time and status
+        appointment.appointment_time = new_time
+        appointment.status = 'scheduled'  # Set status to scheduled for both updates and reschedules
+
+    # Update notes if provided
     if 'notes' in data:
         appointment.notes = data['notes']
-    appointment.status = 'scheduled'  # Set status to scheduled for both updates and reschedules
 
     db.session.commit()
 
