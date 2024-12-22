@@ -94,17 +94,23 @@ Create a fullstack application for managing patient appointments. The applicatio
 - **POST** `/api/patients/login` - Login a patient
 - **GET** `/api/patients/profile` - Get a patient's profile
 - **PUT** `/api/patients/profile` - Update patient information
-- **DELETE** `/api/patients/<int:appointment_id>` - Cancel an appointment
+- **DELETE** `/api/patients/<int:patient_id>` - Delete a patient account
 - **GET** `/api/patients` - Get all patients
 
 ### Doctor Routes
 - **GET** `/api/doctors` - Get all doctors
 - **GET** `/api/doctors/<int:doctor_id>/appointments` - Get a doctor's schedule
+- **POST** `/api/doctors/register` - Register a new doctor
+- **POST** `/api/doctors/login` - Login a doctor
+- **PUT** `/api/doctors/<int:doctor_id>/availability` - Update doctor's availability
+- **DELETE** `/api/doctors/<int:doctor_id>` - Delete a doctor account
 
 ### Appointment Routes
 - **POST** `/api/appointments/create` - Create an appointment
 - **PUT** `/api/appointments/<int:appointment_id>` - Update an appointment
+- **DELETE** `/api/appointments/<int:appointment_id>` - Cancel an appointment
 - **GET** `/api/appointments` - Get all appointments
+- **GET** `/api/appointments/<int:appointment_id>` - Get details of a specific appointment
 
 ## Additional Notes
 - Follow best practices for coding and documentation.

@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-appointment-history',
@@ -12,6 +15,16 @@ import { Router } from '@angular/router';
         <div class="header">
           <h2>Appointment History Report</h2>
           <div class="timestamp">Generated: {{generatedTimestamp | date:'medium'}}</div>
+        </div>
+      
+        <div class="stats-container">
+          <canvas id="appointmentStats"></canvas>
+        </div>
+
+        <div class="summary">
+          <p>Total Appointments: {{appointments.length}}</p>
+          <p>Scheduled: {{getStatusCount('scheduled')}}</p>
+          <p>Canceled: {{getStatusCount('canceled')}}</p>
         </div>
 
         <div class="table-container">
@@ -31,7 +44,8 @@ import { Router } from '@angular/router';
                 <td>{{appointment.doctor?.name}}</td>
                 <td>{{appointment.doctor?.specialization || 'General Practice'}}</td>
                 <td>
-                  <span class="status" [class.status-scheduled]="appointment.status === 'scheduled'">
+                  <span class="status" [class.status-scheduled]="appointment.status === 'scheduled'"
+                                     [class.status-canceled]="appointment.status === 'canceled'">
                     {{appointment.status}}
                   </span>
                 </td>
@@ -39,12 +53,6 @@ import { Router } from '@angular/router';
               </tr>
             </tbody>
           </table>
-        </div>
-
-        <div class="summary">
-          <p>Total Appointments: {{appointments.length}}</p>
-          <p>Scheduled: {{getStatusCount('scheduled')}}</p>
-          <p>Canceled: {{getStatusCount('canceled')}}</p>
         </div>
 
         <div class="actions">
@@ -79,6 +87,14 @@ import { Router } from '@angular/router';
     .timestamp {
       color: #666;
       font-size: 0.9em;
+    }
+
+    .stats-container {
+      margin: 20px 0;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      height: 300px;
     }
 
     h2 {
@@ -126,8 +142,13 @@ import { Router } from '@angular/router';
       color: #2e7d32;
     }
 
+    .status-canceled {
+      background: #ffebee;
+      color: #c62828;
+    }
+
     .summary {
-      margin-top: 30px;
+      margin: 30px 0;
       padding: 20px;
       background: #f8f9fa;
       border-radius: 8px;
@@ -175,13 +196,99 @@ export class AppointmentHistoryComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (!this.appointments.length) {
-      this.goBack();
-    }
+    this.createAppointmentChart();
   }
 
   getStatusCount(status: string): number {
     return this.appointments.filter(apt => apt.status === status).length;
+  }
+
+  createAppointmentChart() {
+    // Create data points for the line graph
+    const appointmentsByDate = new Map<string, { scheduled: number; canceled: number }>();
+    
+    // Sort appointments by date
+    const sortedAppointments = [...this.appointments].sort(
+      (a, b) => new Date(a.appointment_time).getTime() - new Date(b.appointment_time).getTime()
+    );
+
+    // Initialize counters
+    let scheduledCount = 0;
+    let canceledCount = 0;
+
+    // Process appointments to create cumulative data
+    sortedAppointments.forEach(apt => {
+      const date = new Date(apt.appointment_time).toLocaleDateString();
+      
+      if (apt.status === 'scheduled') scheduledCount++;
+      if (apt.status === 'canceled') canceledCount++;
+
+      appointmentsByDate.set(date, {
+        scheduled: scheduledCount,
+        canceled: canceledCount
+      });
+    });
+
+    // Prepare data for the chart
+    const labels = Array.from(appointmentsByDate.keys());
+    const scheduledData = Array.from(appointmentsByDate.values()).map(v => v.scheduled);
+    const canceledData = Array.from(appointmentsByDate.values()).map(v => v.canceled);
+
+    const ctx = document.getElementById('appointmentStats') as HTMLCanvasElement;
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Scheduled Appointments',
+            data: scheduledData,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Canceled Appointments',
+            data: canceledData,
+            borderColor: 'rgba(255, 99, 132, 1)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            tension: 0.4,
+            fill: true
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: 'Appointment History Over Time',
+            font: {
+              size: 16
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false
+          }
+        },
+        interaction: {
+          mode: 'nearest',
+          axis: 'x',
+          intersect: false
+        }
+      }
+    });
   }
 
   goBack() {
