@@ -1,6 +1,6 @@
 .booking-container {
-  max-width: 600px;
-  margin: 20px auto;
+  width: 500px;
+  margin: 40px auto;
   padding: 20px;
 }
 
@@ -18,7 +18,7 @@ select {
   width: 100%;
   padding: 8px;
   margin-bottom: 5px;
-  border: 1px solid #ddd;
+  border: 1px solid #121212;
   border-radius: 4px;
 }
 
@@ -123,7 +123,7 @@ button:disabled {
   width: 100%;
   padding: 8px;
   margin-bottom: 5px;
-  border: 1px solid #ddd;
+  border: 1px solid #121212;
   border-radius: 4px;
   font-size: 1em;
 }
@@ -178,7 +178,7 @@ button:disabled {
 textarea {
   width: 100%;
   padding: 8px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid #121212;
   border-radius: 4px;
   font-size: 1em;
   font-family: inherit;
