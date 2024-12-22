@@ -25,6 +25,7 @@ export class BookAppointmentComponent implements OnInit {
   selectedDoctorId: number | null = null;
   selectedDate: string = '';
   selectedTime: string = '';
+  notes: string = '';
   availableDates: Date[] = [];
   error: string | null = null;
   doctorAppointments: any[] = [];
@@ -66,7 +67,8 @@ export class BookAppointmentComponent implements OnInit {
       isReschedule: boolean,
       appointmentId: number,
       currentDate: string,
-      currentTime: string
+      currentTime: string,
+      currentNotes: string
     };
 
     if (state?.selectedDoctor) {
@@ -83,6 +85,11 @@ export class BookAppointmentComponent implements OnInit {
           this.selectedDate = new Date(state.currentDate).toISOString();
           this.selectedTime = state.currentTime;
         }
+
+        // Set notes for both update and reschedule
+        if (state.currentNotes) {
+          this.notes = state.currentNotes;
+        }
         
         // Clear search term in update/reschedule mode
         this.searchTerm = '';
@@ -93,7 +100,15 @@ export class BookAppointmentComponent implements OnInit {
   ngOnInit() {
     this.loadDoctors().then(() => {
       if (this.selectedDoctorId) {
-        this.onDoctorSelect(); // Trigger loading of doctor's appointments after doctors are loaded
+        this.onDoctorSelect();
+        
+        // If we're updating, load the existing notes
+        const state = this.router.getCurrentNavigation()?.extras?.state as {
+          currentNotes?: string;
+        };
+        if (state?.currentNotes) {
+          this.notes = state.currentNotes;
+        }
       }
     });
   }
@@ -233,14 +248,14 @@ export class BookAppointmentComponent implements OnInit {
       doctorId: this.selectedDoctorId,
       date: new Date(this.selectedDate),
       time: this.selectedTime,
-      status: 'scheduled'
+      status: 'scheduled',
+      notes: this.notes
     };
 
-    // If in update mode but not reschedule, use updateAppointment
-    // Otherwise use bookAppointment
-    const appointmentObservable = (this.updateMode && !this.isReschedule && this.appointmentId)
-      ? this.appointmentService.updateAppointment(this.appointmentId, appointment.date, appointment.time)
-      : this.appointmentService.bookAppointment(appointment, this.canceledAppointments[this.selectedTime]);
+    // Use updateAppointment for both updates and reschedules if we have an appointmentId
+    const appointmentObservable = this.appointmentId
+      ? this.appointmentService.updateAppointment(this.appointmentId, appointment.date, appointment.time, this.notes)
+      : this.appointmentService.bookAppointment(appointment);
 
     appointmentObservable.subscribe({
       next: (response) => {

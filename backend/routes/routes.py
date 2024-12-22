@@ -53,13 +53,11 @@ def login_patient():
 @api.route('/api/patients/profile', methods=['GET'])
 @jwt_required()
 def get_patient_profile():
-    current_user_id = get_jwt_identity()  # Get the current user's ID
-    patient = Patient.query.get_or_404(current_user_id)  # Get the patient details
+    current_user_id = get_jwt_identity()
+    patient = Patient.query.get_or_404(current_user_id)
 
-    # Get the appointments for the patient
     appointments = Appointment.query.filter_by(patient_id=current_user_id).all()
 
-    # Prepare the response data
     profile_data = {
         'id': patient.id,
         'name': patient.name,
@@ -69,7 +67,8 @@ def get_patient_profile():
             'id': appointment.id,
             'doctor_id': appointment.doctor_id,
             'appointment_time': appointment.appointment_time.strftime("%Y-%m-%d %H:%M"),
-            'status': appointment.status
+            'status': appointment.status,
+            'notes': appointment.notes
         } for appointment in appointments]
     }
 
@@ -115,19 +114,40 @@ def update_appointment(appointment_id):
     # Validate appointment time
     is_valid, message = validate_appointment_time(data['appointment_time'])
     if not is_valid:
-        return jsonify({"msg": message}), 400 
-    
-    # Validate appointment status
-    # is_valid, message = validate_appointment_status(data['status'])
-    # if not is_valid:
-    #     return jsonify({"msg": message}), 400
+        return jsonify({"msg": message}), 400
 
     new_time = datetime.strptime(data['appointment_time'], "%Y-%m-%d %H:%M")
 
-    updated_appointment = patient.update_appointment(appointment_id, new_time)
-    if updated_appointment:
-        return jsonify({"msg": "Appointment rescheduled successfully", "appointment_time": updated_appointment.appointment_time.strftime("%Y-%m-%d %H:%M"), "status": updated_appointment.status}), 200
-    return jsonify({"msg": "Appointment not found or you do not have permission to update it"}), 404
+    # Get the appointment
+    appointment = Appointment.query.get(appointment_id)
+    if not appointment or appointment.patient_id != current_user_id:
+        return jsonify({"msg": "Appointment not found or you do not have permission to update it"}), 404
+
+    # Check if the new time slot is available (unless it's the same time as current appointment)
+    if appointment.appointment_time != new_time:
+        existing_appointment = Appointment.query.filter_by(
+            doctor_id=appointment.doctor_id,
+            appointment_time=new_time,
+            status='scheduled'
+        ).first()
+        
+        if existing_appointment:
+            return jsonify({"msg": "Time slot is already taken"}), 400
+
+    # Update appointment time, notes, and status
+    appointment.appointment_time = new_time
+    if 'notes' in data:
+        appointment.notes = data['notes']
+    appointment.status = 'scheduled'  # Set status to scheduled for both updates and reschedules
+
+    db.session.commit()
+
+    return jsonify({
+        "msg": "Appointment updated successfully",
+        "appointment_time": appointment.appointment_time.strftime("%Y-%m-%d %H:%M"),
+        "status": appointment.status,
+        "notes": appointment.notes
+    }), 200
 
 # Cancel an appointment
 @api.route('/api/appointments/<int:appointment_id>', methods=['DELETE'])
@@ -200,10 +220,9 @@ def get_doctor_appointments(doctor_id):
 @api.route('/api/appointments/create', methods=['POST'])
 @jwt_required()
 def create_appointment():
-    current_user_id = get_jwt_identity()  # Get the current user's ID
+    current_user_id = get_jwt_identity()
     data = request.get_json()
 
-    # Assuming the patient is the one making the appointment
     patient = Patient.query.get(current_user_id)
     doctor = Doctor.query.get(data['doctor_id'])
 
@@ -221,22 +240,17 @@ def create_appointment():
     if existing_appointment:
         return jsonify({"msg": "Time slot is already taken"}), 400
     
-    # Validate appointment status
-    # is_valid, message = validate_appointment_status(data['status'])
-    # if not is_valid:
-    #     return jsonify({"msg": message}), 400
-    
     # Validate appointment time
     is_valid, message = validate_appointment_time(data['appointment_time'])
     if not is_valid:
         return jsonify({"msg": message}), 400
-    
 
-    # Create a new appointment
+    # Create a new appointment with notes
     appointment = Appointment(
         doctor_id=doctor.id,
         patient_id=patient.id,
-        appointment_time=appointment_time
+        appointment_time=appointment_time,
+        notes=data.get('notes', '')  # Get notes from request or empty string if not provided
     )
 
     db.session.add(appointment)

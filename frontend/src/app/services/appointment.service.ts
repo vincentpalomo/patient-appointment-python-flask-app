@@ -29,31 +29,20 @@ export class AppointmentService {
   }
 
   // Book a new appointment or reschedule a canceled one
-  bookAppointment(appointment: Appointment, existingAppointmentId?: number): Observable<any> {
+  bookAppointment(appointment: Appointment): Observable<any> {
     const appointmentTime = this.formatDateTime(appointment.date, appointment.time);
 
-    if (existingAppointmentId) {
-      // Update existing canceled appointment with new time only
-      return this.http.put(`${this.apiUrl}/api/appointments/${existingAppointmentId}`, {
-        appointment_time: appointmentTime
-      }).pipe(
-        catchError(error => {
-          console.error('Appointment update error:', error);
-          return throwError(() => error);
-        })
-      );
-    } else {
-      // Create new appointment
-      return this.http.post(`${this.apiUrl}/api/appointments/create`, {
-        doctor_id: appointment.doctorId,
-        appointment_time: appointmentTime
-      }).pipe(
-        catchError(error => {
-          console.error('Appointment booking error:', error);
-          return throwError(() => error);
-        })
-      );
-    }
+    // Create new appointment
+    return this.http.post(`${this.apiUrl}/api/appointments/create`, {
+      doctor_id: appointment.doctorId,
+      appointment_time: appointmentTime,
+      notes: appointment.notes
+    }).pipe(
+      catchError(error => {
+        console.error('Appointment booking error:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   // Cancel an appointment
@@ -62,9 +51,11 @@ export class AppointmentService {
   }
 
   // Update an appointment
-  updateAppointment(appointmentId: number, date: Date, time: string): Observable<any> {
+  updateAppointment(appointmentId: number, date: Date, time: string, notes: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/api/appointments/${appointmentId}`, {
-      appointment_time: this.formatDateTime(date, time)
+      appointment_time: this.formatDateTime(date, time),
+      notes: notes,
+      status: 'scheduled'
     });
   }
 

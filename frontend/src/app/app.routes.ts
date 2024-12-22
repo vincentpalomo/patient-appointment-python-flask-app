@@ -7,5 +7,6 @@ export const routes: Routes = [
     { path: 'patient-dashboard', loadComponent: () => import('./components/patient-dashboard/patient-dashboard.component').then(m => m.PatientDashboardComponent) },
     { path: 'doctor-dashboard', loadComponent: () => import('./components/doctor-dashboard/doctor-dashboard.component').then(m => m.DoctorDashboardComponent) },
     { path: 'book-appointment', loadComponent: () => import('./components/book-appointment/book-appointment.component').then(m => m.BookAppointmentComponent) },
-    { path: 'update-profile', loadComponent: () => import('./components/update-profile/update-profile.component').then(m => m.UpdateProfileComponent) }
+    { path: 'update-profile', loadComponent: () => import('./components/update-profile/update-profile.component').then(m => m.UpdateProfileComponent) },
+    { path: 'appointment-details', loadComponent: () => import('./components/appointment-details/appointment-details.component').then(m => m.AppointmentDetailsComponent) }
 ];

@@ -82,5 +82,120 @@ class Doctor(Person):
                 'email': 'jack@example.com',
                 'phone': '5556677889',
                 'specialization': 'Urology'
+            },
+            # Additional doctors with high-volume specializations
+            {
+                'name': 'Dr. Karen',
+                'email': 'karen@example.com',
+                'phone': '5551112233',
+                'specialization': 'Family Medicine'
+            },
+            {
+                'name': 'Dr. Lisa',
+                'email': 'lisa@example.com',
+                'phone': '5552223344',
+                'specialization': 'Family Medicine'
+            },
+            {
+                'name': 'Dr. Mike',
+                'email': 'mike@example.com',
+                'phone': '5553334455',
+                'specialization': 'Family Medicine'
+            },
+            {
+                'name': 'Dr. Nancy',
+                'email': 'nancy@example.com',
+                'phone': '5554445566',
+                'specialization': 'Pediatrics'
+            },
+            {
+                'name': 'Dr. Oscar',
+                'email': 'oscar@example.com',
+                'phone': '5555556677',
+                'specialization': 'Pediatrics'
+            },
+            {
+                'name': 'Dr. Patricia',
+                'email': 'patricia@example.com',
+                'phone': '5556667788',
+                'specialization': 'Pediatrics'
+            },
+            {
+                'name': 'Dr. Quinn',
+                'email': 'quinn@example.com',
+                'phone': '5557778899',
+                'specialization': 'Cardiology'
+            },
+            {
+                'name': 'Dr. Rachel',
+                'email': 'rachel@example.com',
+                'phone': '5558889900',
+                'specialization': 'Cardiology'
+            },
+            {
+                'name': 'Dr. Steve',
+                'email': 'steve@example.com',
+                'phone': '5559990011',
+                'specialization': 'Dermatology'
+            },
+            {
+                'name': 'Dr. Tom',
+                'email': 'tom@example.com',
+                'phone': '5550001122',
+                'specialization': 'Dermatology'
+            },
+            {
+                'name': 'Dr. Uma',
+                'email': 'uma@example.com',
+                'phone': '5551122334',
+                'specialization': 'OB/GYN'
+            },
+            {
+                'name': 'Dr. Victor',
+                'email': 'victor@example.com',
+                'phone': '5552233445',
+                'specialization': 'OB/GYN'
+            },
+            {
+                'name': 'Dr. Wendy',
+                'email': 'wendy@example.com',
+                'phone': '5553344556',
+                'specialization': 'Psychiatry'
+            },
+            {
+                'name': 'Dr. Xavier',
+                'email': 'xavier@example.com',
+                'phone': '5554455667',
+                'specialization': 'Psychiatry'
+            },
+            {
+                'name': 'Dr. Yolanda',
+                'email': 'yolanda@example.com',
+                'phone': '5555566778',
+                'specialization': 'Orthopedics'
+            },
+            {
+                'name': 'Dr. Zack',
+                'email': 'zack@example.com',
+                'phone': '5556677889',
+                'specialization': 'Orthopedics'
+            },
+            {
+                'name': 'Dr. Adam',
+                'email': 'adam@example.com',
+                'phone': '5557788990',
+                'specialization': 'Internal Medicine'
+            },
+            {
+                'name': 'Dr. Beth',
+                'email': 'beth@example.com',
+                'phone': '5558899001',
+                'specialization': 'Internal Medicine'
+            },
+            {
+                'name': 'Dr. Carl',
+                'email': 'carl@example.com',
+                'phone': '5559900112',
+                'specialization': 'Neurosurgery'
             }
         ]

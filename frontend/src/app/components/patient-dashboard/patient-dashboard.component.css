@@ -550,3 +550,12 @@
 .reschedule-btn {
   composes: btn btn-warning;
 }
+
+/* Info button style */
+.btn-info {
+  background-color: #03A9F4;
+}
+
+.btn-info:hover {
+  background-color: #0288D1;
+}

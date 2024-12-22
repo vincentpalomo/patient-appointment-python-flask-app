@@ -51,6 +51,12 @@
     <small class="hint" *ngIf="!selectedDate">Please select a date first</small>
   </div>
 
+  <div class="form-group">
+    <label for="notes">Notes (Optional):</label>
+    <textarea id="notes" [(ngModel)]="notes" name="notes" rows="3"
+      placeholder="Add any special notes or requests for your appointment"></textarea>
+  </div>
+
   <div class="actions">
     <button (click)="bookAppointment()" [disabled]="!canBook">
       {{isReschedule ? 'Reschedule' : (updateMode ? 'Update' : 'Book')}} Appointment

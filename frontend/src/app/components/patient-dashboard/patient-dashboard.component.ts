@@ -154,7 +154,8 @@ export class PatientDashboardComponent implements OnInit {
         appointmentId: appointment.id,
         selectedDoctor: appointment.doctor,
         currentDate: appointment.appointment_time,
-        currentTime: appointment.appointment_time.split(' ')[1].substring(0, 5)
+        currentTime: appointment.appointment_time.split(' ')[1].substring(0, 5),
+        currentNotes: appointment.notes
       },
       skipLocationChange: true
     });
@@ -165,9 +166,10 @@ export class PatientDashboardComponent implements OnInit {
     this.router.navigate(['/book-appointment'], { 
       state: { 
         selectedDoctor: appointment.doctor,
-        updateMode: true, // This will disable doctor selection
-        isReschedule: true, // Add this flag to differentiate from regular updates
-        appointmentId: null // No appointment ID since we're creating a new one
+        updateMode: true,
+        isReschedule: true,
+        appointmentId: appointment.id,
+        currentNotes: appointment.notes
       },
       skipLocationChange: true
     });
@@ -250,5 +252,12 @@ export class PatientDashboardComponent implements OnInit {
 
   navigateToUpdateProfile() {
     this.router.navigate(['/update-profile']);
+  }
+
+  viewDetails(appointment: any) {
+    this.router.navigate(['/appointment-details'], { 
+      state: { appointment },
+      skipLocationChange: true
+    });
   }
 } 

@@ -5,4 +5,5 @@ export interface Appointment {
     date: Date;
     time: string;
     status: 'scheduled' | 'canceled' | 'completed';
+    notes?: string;
 } 
