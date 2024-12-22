@@ -13,8 +13,8 @@ RUN npm install
 # Copy the rest of the frontend code
 COPY frontend/ .
 
-# Build the app
-RUN npm run build
+# Build the Angular app
+RUN npm run build --prod
 
 # Install serve to run the built app
 RUN npm install -g serve
@@ -23,4 +23,4 @@ RUN npm install -g serve
 EXPOSE 3000
 
 # Start the app
-CMD ["serve", "-s", "dist/frontend/browser", "-l", "3000"] 
+CMD ["serve", "-s", "dist/frontend", "-l", "3000"]
