@@ -316,21 +316,23 @@ export class BookAppointmentComponent implements OnInit {
       return;
     }
 
+    // Always create appointment with 'scheduled' status
     const appointment: Appointment = {
       patientId: currentUser.id,
       doctorId: this.selectedDoctorId,
       date: new Date(this.selectedDate),
       time: this.selectedTime,
-      status: 'scheduled'
+      status: 'scheduled'  // Explicitly set status to scheduled
     };
 
-    // Check if we're rebooking a canceled appointment
+    // Check if we're booking a canceled slot
     const existingAppointmentId = this.canceledAppointments[this.selectedTime];
 
     console.log('Booking appointment:', {
       appointment,
       existingAppointmentId,
-      selectedTime: this.selectedTime
+      selectedTime: this.selectedTime,
+      status: 'scheduled'  // Log the status
     });
 
     this.appointmentService.bookAppointment(appointment, existingAppointmentId)

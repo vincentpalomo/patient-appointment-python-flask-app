@@ -38,7 +38,7 @@ class Patient(Person):
         appointment = Appointment.query.get(appointment_id)
         if appointment and appointment.patient_id == self.id:
             appointment.appointment_time = new_time
-            appointment.status = 'rescheduled'  # Update status to 'rescheduled'
+            appointment.status = 'scheduled'  # Update status to 'scheduled'
             db.session.commit()
             return appointment
         return None

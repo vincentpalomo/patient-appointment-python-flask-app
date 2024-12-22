@@ -33,10 +33,9 @@ export class AppointmentService {
     const appointmentTime = this.formatDateTime(appointment.date, appointment.time);
 
     if (existingAppointmentId) {
-      // Update existing canceled appointment to scheduled
+      // Update existing canceled appointment with new time only
       return this.http.put(`${this.apiUrl}/api/appointments/${existingAppointmentId}`, {
-        appointment_time: appointmentTime,
-        status: 'scheduled'  // Explicitly set status to scheduled
+        appointment_time: appointmentTime
       }).pipe(
         catchError(error => {
           console.error('Appointment update error:', error);

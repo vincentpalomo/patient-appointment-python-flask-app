@@ -9,7 +9,7 @@ def validate_appointment_time(appointment_time):
         return False, "Invalid appointment time format. Use YYYY-MM-DD HH:MM."
     
 def validate_appointment_status(status):
-    if status not in ['scheduled', 'canceled', 'rescheduled', 'completed']:
-        return False, "Invalid appointment status. Must be 'scheduled', 'canceled', 'rescheduled', or 'completed'."
+    if status not in ['scheduled', 'canceled', 'completed']:
+        return False, "Invalid appointment status. Must be 'scheduled', 'canceled', or 'completed'."
     return True, ""
 
