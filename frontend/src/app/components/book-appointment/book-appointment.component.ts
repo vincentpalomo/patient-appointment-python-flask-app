@@ -31,6 +31,8 @@ export class BookAppointmentComponent implements OnInit {
   canceledAppointments: any = {};
   searchTerm: string = '';
   filteredDoctors: User[] = [];
+  updateMode: boolean = false;
+  appointmentId: number | null = null;
 
   timeSlots: TimeSlot[] = [
     { time: '09:00', label: '9:00 AM', isAvailable: true },
@@ -57,9 +59,26 @@ export class BookAppointmentComponent implements OnInit {
     });
 
     // Check for pre-selected doctor from router state
-    const state = this.router.getCurrentNavigation()?.extras?.state as { selectedDoctor: any };
+    const state = this.router.getCurrentNavigation()?.extras?.state as { 
+      selectedDoctor: any,
+      updateMode: boolean,
+      appointmentId: number,
+      currentDate: string,
+      currentTime: string
+    };
+
     if (state?.selectedDoctor) {
       this.selectedDoctorId = state.selectedDoctor.id;
+      
+      // If in update mode, set additional fields
+      if (state.updateMode) {
+        this.updateMode = true;
+        this.appointmentId = state.appointmentId;
+        this.selectedDate = new Date(state.currentDate).toISOString();
+        this.selectedTime = state.currentTime;
+        // Clear search term in update mode
+        this.searchTerm = '';
+      }
     }
   }
 
@@ -90,6 +109,11 @@ export class BookAppointmentComponent implements OnInit {
   }
 
   searchDoctor() {
+    // Don't allow search in update mode
+    if (this.updateMode) {
+      return;
+    }
+
     if (!this.searchTerm.trim()) {
       this.filteredDoctors = [];
       return;
@@ -196,37 +220,30 @@ export class BookAppointmentComponent implements OnInit {
       return;
     }
 
-    // Always create appointment with 'scheduled' status
     const appointment: Appointment = {
       patientId: currentUser.id,
       doctorId: this.selectedDoctorId,
       date: new Date(this.selectedDate),
       time: this.selectedTime,
-      status: 'scheduled'  // Explicitly set status to scheduled
+      status: 'scheduled'
     };
 
-    // Check if we're booking a canceled slot
-    const existingAppointmentId = this.canceledAppointments[this.selectedTime];
+    // If in update mode, use updateAppointment, otherwise use bookAppointment
+    const appointmentObservable = this.updateMode && this.appointmentId
+      ? this.appointmentService.updateAppointment(this.appointmentId, appointment.date, appointment.time)
+      : this.appointmentService.bookAppointment(appointment, this.canceledAppointments[this.selectedTime]);
 
-    console.log('Booking appointment:', {
-      appointment,
-      existingAppointmentId,
-      selectedTime: this.selectedTime,
-      status: 'scheduled'  // Log the status
+    appointmentObservable.subscribe({
+      next: (response) => {
+        console.log(this.updateMode ? 'Update response:' : 'Booking response:', response);
+        alert(this.updateMode ? 'Appointment updated successfully!' : 'Appointment booked successfully!');
+        this.router.navigate(['/patient-dashboard']);
+      },
+      error: (error) => {
+        console.error('Detailed error:', error);
+        this.error = error.error?.msg || `Failed to ${this.updateMode ? 'update' : 'book'} appointment. Please try again.`;
+      }
     });
-
-    this.appointmentService.bookAppointment(appointment, existingAppointmentId)
-      .subscribe({
-        next: (response) => {
-          console.log('Booking response:', response);
-          alert('Appointment booked successfully!');
-          this.router.navigate(['/patient-dashboard']);
-        },
-        error: (error) => {
-          console.error('Detailed booking error:', error);
-          this.error = error.error?.msg || 'Failed to book appointment. Please try again.';
-        }
-      });
   }
 
   goBack() {
@@ -234,9 +251,14 @@ export class BookAppointmentComponent implements OnInit {
   }
 
   selectDoctor(doctor: User) {
+    // Don't allow doctor selection in update mode
+    if (this.updateMode) {
+      return;
+    }
+
     this.selectedDoctorId = doctor.id || null;
-    this.searchTerm = doctor.name; // Update search input with selected doctor's name
-    this.filteredDoctors = []; // Clear the filtered results to close dropdown
+    this.searchTerm = doctor.name;
+    this.filteredDoctors = [];
     this.onDoctorSelect();
   }
 } 

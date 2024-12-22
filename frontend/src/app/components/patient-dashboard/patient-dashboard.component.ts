@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AppointmentService } from '../../services/appointment.service';
@@ -34,7 +35,7 @@ interface AppointmentWithDoctor extends UserProfile {
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './patient-dashboard.component.html',
   styleUrls: ['./patient-dashboard.component.css']
 })
@@ -43,6 +44,12 @@ export class PatientDashboardComponent implements OnInit {
   loading: boolean = false;
   error: string | null = null;
   doctors: any[] = [];
+
+  // Filter states
+  statusFilter: string = 'all'; // 'all', 'scheduled', 'canceled'
+  sortOrder: string = 'new'; // 'new', 'old'
+  specializationFilter: string = 'all';
+  doctorFilter: string = 'all';
 
   constructor(
     private authService: AuthService,
@@ -58,7 +65,7 @@ export class PatientDashboardComponent implements OnInit {
   loadDoctors() {
     this.appointmentService.getDoctors().subscribe({
       next: (doctors) => {
-        console.log('Loaded doctors:', doctors);
+        // console.log('Loaded doctors:', doctors);
         this.doctors = doctors;
       },
       error: (error) => {
@@ -136,5 +143,75 @@ export class PatientDashboardComponent implements OnInit {
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  updateAppointment(appointment: any) {
+    // Navigate to book appointment page with pre-filled data
+    this.router.navigate(['/book-appointment'], { 
+      state: { 
+        updateMode: true,
+        appointmentId: appointment.id,
+        selectedDoctor: appointment.doctor,
+        currentDate: appointment.appointment_time,
+        currentTime: appointment.appointment_time.split(' ')[1].substring(0, 5)
+      },
+      skipLocationChange: true
+    });
+  }
+
+  // Get unique specializations from appointments
+  get specializations(): string[] {
+    if (!this.profile?.appointments) return [];
+    const specs = new Set(this.profile.appointments
+      .map((apt: any) => apt.doctor?.specialization || 'General')
+      .filter((spec: string) => spec));
+    return Array.from(specs).filter((spec): spec is string => spec !== 'all');
+  }
+
+  // Get unique doctors from appointments
+  get appointmentDoctors(): string[] {
+    if (!this.profile?.appointments) return [];
+    const docs = new Set(this.profile.appointments
+      .map((apt: any) => apt.doctor?.name)
+      .filter((name: string) => name));
+    return Array.from(docs).filter((name): name is string => name !== 'all');
+  }
+
+  // Get filtered and sorted appointments
+  get filteredAppointments(): any[] {
+    if (!this.profile?.appointments) return [];
+    
+    return this.profile.appointments
+      .filter((apt: any) => {
+        // Status filter
+        if (this.statusFilter !== 'all' && apt.status !== this.statusFilter) {
+          return false;
+        }
+        // Specialization filter
+        if (this.specializationFilter !== 'all' && 
+            apt.doctor?.specialization !== this.specializationFilter) {
+          return false;
+        }
+        // Doctor filter
+        if (this.doctorFilter !== 'all' && 
+            apt.doctor?.name !== this.doctorFilter) {
+          return false;
+        }
+        return true;
+      })
+      .sort((a: any, b: any) => {
+        // Sort by date
+        const dateA = new Date(a.appointment_time).getTime();
+        const dateB = new Date(b.appointment_time).getTime();
+        return this.sortOrder === 'new' ? dateB - dateA : dateA - dateB;
+      });
+  }
+
+  // Reset all filters
+  resetFilters() {
+    this.statusFilter = 'all';
+    this.sortOrder = 'new';
+    this.specializationFilter = 'all';
+    this.doctorFilter = 'all';
   }
 } 

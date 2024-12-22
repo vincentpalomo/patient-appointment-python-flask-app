@@ -13,10 +13,42 @@
 
   <div class="appointments-section">
     <h3>Your Appointments</h3>
+
+    <div class="filters">
+      <div class="filter-group">
+        <select [(ngModel)]="statusFilter">
+          <option value="all">All Status</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="canceled">Canceled</option>
+        </select>
+
+        <select [(ngModel)]="sortOrder">
+          <option value="new">Newest First</option>
+          <option value="old">Oldest First</option>
+        </select>
+
+        <select [(ngModel)]="specializationFilter">
+          <option value="all">All Specializations</option>
+          <option *ngFor="let spec of specializations" [value]="spec">
+            {{spec}}
+          </option>
+        </select>
+
+        <select [(ngModel)]="doctorFilter">
+          <option value="all">All Doctors</option>
+          <option *ngFor="let doc of appointmentDoctors" [value]="doc">
+            {{doc}}
+          </option>
+        </select>
+
+        <button class="reset-btn" (click)="resetFilters()">Reset</button>
+      </div>
+    </div>
+
     <div *ngIf="loading" class="loading">Loading appointments...</div>
     <div *ngIf="error" class="error">{{error}}</div>
     <div class="appointment-list" *ngIf="!loading && !error">
-      <div *ngFor="let appointment of profile?.appointments" class="appointment-card">
+      <div *ngFor="let appointment of filteredAppointments" class="appointment-card">
         <div class="appointment-header">
           <div class="appointment-time">
             <div class="date">{{appointment.appointment_time | date:'fullDate'}}</div>
@@ -44,12 +76,16 @@
           </div>
         </div>
 
-        <button *ngIf="appointment.status === 'scheduled'" (click)="cancelAppointment(appointment.id)"
-          class="cancel-btn">
-          Cancel Appointment
-        </button>
+        <div class="appointment-actions" *ngIf="appointment.status === 'scheduled'">
+          <button class="update-btn" (click)="updateAppointment(appointment)">
+            Update Appointment
+          </button>
+          <button class="cancel-btn" (click)="cancelAppointment(appointment.id)">
+            Cancel Appointment
+          </button>
+        </div>
       </div>
-      <p *ngIf="!profile?.appointments?.length" class="no-appointments">No appointments found.</p>
+      <p *ngIf="!filteredAppointments.length" class="no-appointments">No appointments found.</p>
     </div>
   </div>
 

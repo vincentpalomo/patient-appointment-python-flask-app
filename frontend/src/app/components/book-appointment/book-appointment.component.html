@@ -1,7 +1,7 @@
 <div class="booking-container">
-  <h2>Book Appointment</h2>
+  <h2>{{updateMode ? 'Update' : 'Book'}} Appointment</h2>
 
-  <div class="form-group">
+  <div class="form-group" *ngIf="!updateMode">
     <label for="search">Search Doctor:</label>
     <div class="search-container">
       <input type="text" id="search" [(ngModel)]="searchTerm" (input)="searchDoctor()"
@@ -17,12 +17,13 @@
 
   <div class="form-group">
     <label for="doctor">Selected Doctor:</label>
-    <select id="doctor" [(ngModel)]="selectedDoctorId" (change)="onDoctorSelect()">
+    <select id="doctor" [(ngModel)]="selectedDoctorId" (change)="onDoctorSelect()" [disabled]="updateMode">
       <option value="">Select a doctor</option>
       <option *ngFor="let doctor of doctors" [value]="doctor.id">
         {{doctor.name}} - {{doctor.specialization || 'General'}}
       </option>
     </select>
+    <small class="hint" *ngIf="updateMode">Cannot change doctor when updating appointment</small>
   </div>
 
   <div class="form-group">
@@ -33,7 +34,7 @@
         {{slot | date:'fullDate'}}
       </option>
     </select>
-    <small class="hint" *ngIf="!selectedDoctorId">Please select a doctor first</small>
+    <small class="hint" *ngIf="!selectedDoctorId && !updateMode">Please select a doctor first</small>
   </div>
 
   <div class="form-group">
@@ -49,7 +50,9 @@
   </div>
 
   <div class="actions">
-    <button (click)="bookAppointment()" [disabled]="!canBook">Book Appointment</button>
+    <button (click)="bookAppointment()" [disabled]="!canBook">
+      {{updateMode ? 'Update' : 'Book'}} Appointment
+    </button>
     <button (click)="goBack()" class="secondary">Back</button>
   </div>
 

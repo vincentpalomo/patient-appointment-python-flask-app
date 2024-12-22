@@ -341,3 +341,67 @@ button:hover {
     order: 3;
   }
 }
+
+.appointment-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.update-btn {
+  flex: 1;
+  background-color: #2196F3;
+}
+
+.update-btn:hover {
+  background-color: #1976D2;
+}
+
+.cancel-btn {
+  flex: 1;
+  background-color: #f44336;
+  margin-top: 0;
+  width: auto;
+}
+
+.filters {
+  margin-bottom: 20px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.filter-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  min-width: 150px;
+  flex: 1;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+.reset-btn {
+  padding: 8px 16px;
+  background: #757575;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reset-btn:hover {
+  background: #616161;
+}
