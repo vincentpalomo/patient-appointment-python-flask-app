@@ -12,7 +12,7 @@ import { RouterOutlet } from '@angular/router';
   `,
   styles: [`
     .app-container {
-      min-height: 100vh;
+      min-height: 95vh;
       background-color: #f5f5f5;
     }
   `]

@@ -108,11 +108,19 @@ interface AppointmentWithDoctor extends UserProfile {
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      height: 95vh;
+      overflow: hidden;
+      background-color: #f5f5f5;
+    }
+
     .dashboard-container {
       display: grid;
-      grid-template-columns: 250px 1fr 300px;
+      grid-template-columns: 350px 1fr 350px;
       gap: 20px;
       padding: 20px;
+      height: 100%;
       max-width: 1400px;
       margin: 0 auto;
     }
@@ -123,6 +131,7 @@ interface AppointmentWithDoctor extends UserProfile {
       padding: 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       height: fit-content;
+      max-height: calc(100vh - 40px);
     }
 
     .appointments-section {
@@ -130,11 +139,15 @@ interface AppointmentWithDoctor extends UserProfile {
       border-radius: 8px;
       padding: 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
     }
 
     .appointments-section h3 {
       margin: 0 0 20px 0;
       color: #333;
+      flex-shrink: 0;
     }
 
     .user-info {
@@ -157,6 +170,26 @@ interface AppointmentWithDoctor extends UserProfile {
     .appointment-list {
       display: grid;
       gap: 15px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .appointment-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .appointment-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .appointment-list::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+
+    .appointment-list::-webkit-scrollbar-thumb:hover {
+      background: #666;
     }
 
     .appointment-card {
@@ -292,17 +325,40 @@ interface AppointmentWithDoctor extends UserProfile {
       border-radius: 8px;
       padding: 20px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      height: fit-content;
+      height: calc(100vh - 40px);
+      display: flex;
+      flex-direction: column;
     }
 
     .doctors-sidebar h3 {
       margin: 0 0 15px 0;
       color: #333;
+      flex-shrink: 0;
     }
 
     .doctors-list {
       display: grid;
       gap: 15px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .doctors-list::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .doctors-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .doctors-list::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+
+    .doctors-list::-webkit-scrollbar-thumb:hover {
+      background: #666;
     }
 
     .doctor-card {
@@ -311,19 +367,22 @@ interface AppointmentWithDoctor extends UserProfile {
       border-radius: 8px;
       background: #f8f9fa;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .doctor-card .doctor-info {
-      flex: 1;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
     }
 
     .doctor-card .doctor-name {
       font-weight: 500;
       color: #333;
-      margin-bottom: 4px;
+      font-size: 1.1em;
     }
 
     .doctor-card .doctor-specialization {
@@ -332,7 +391,7 @@ interface AppointmentWithDoctor extends UserProfile {
     }
 
     .doctor-card .book-btn {
-      padding: 6px 12px;
+      padding: 8px 12px;
       background: #4CAF50;
       color: white;
       border: none;
@@ -340,6 +399,7 @@ interface AppointmentWithDoctor extends UserProfile {
       cursor: pointer;
       font-size: 0.9em;
       transition: background-color 0.2s;
+      width: 100%;
     }
 
     .doctor-card .book-btn:hover {
