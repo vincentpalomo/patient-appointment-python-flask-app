@@ -50,6 +50,7 @@ export class PatientDashboardComponent implements OnInit {
   sortOrder: string = 'new'; // 'new', 'old'
   specializationFilter: string = 'all';
   doctorFilter: string = 'all';
+  availableDoctorsSpecFilter: string = 'all'; // New filter for available doctors
 
   constructor(
     private authService: AuthService,
@@ -159,6 +160,19 @@ export class PatientDashboardComponent implements OnInit {
     });
   }
 
+  rescheduleAppointment(appointment: any) {
+    // Navigate to book appointment page with pre-filled doctor
+    this.router.navigate(['/book-appointment'], { 
+      state: { 
+        selectedDoctor: appointment.doctor,
+        updateMode: true, // This will disable doctor selection
+        isReschedule: true, // Add this flag to differentiate from regular updates
+        appointmentId: null // No appointment ID since we're creating a new one
+      },
+      skipLocationChange: true
+    });
+  }
+
   // Get unique specializations from appointments
   get specializations(): string[] {
     if (!this.profile?.appointments) return [];
@@ -213,5 +227,24 @@ export class PatientDashboardComponent implements OnInit {
     this.sortOrder = 'new';
     this.specializationFilter = 'all';
     this.doctorFilter = 'all';
+  }
+
+  // Get unique specializations from available doctors
+  get availableSpecializations(): string[] {
+    if (!this.doctors) return [];
+    const specs = new Set(this.doctors
+      .map(doctor => doctor.specialization || 'General')
+      .filter(spec => spec));
+    return Array.from(specs);
+  }
+
+  // Get filtered available doctors
+  get filteredAvailableDoctors(): any[] {
+    if (!this.doctors) return [];
+    
+    return this.doctors.filter(doctor => {
+      if (this.availableDoctorsSpecFilter === 'all') return true;
+      return (doctor.specialization || 'General') === this.availableDoctorsSpecFilter;
+    });
   }
 } 

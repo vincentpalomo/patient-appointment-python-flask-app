@@ -405,3 +405,29 @@ button:hover {
 .reset-btn:hover {
   background: #616161;
 }
+
+.doctors-filter {
+  margin-bottom: 15px;
+  padding: 0;
+  box-shadow: none;
+}
+
+.doctors-filter select {
+  width: 100%;
+  min-width: 0;
+}
+
+.reschedule-btn {
+  flex: 1;
+  background-color: #FF9800;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reschedule-btn:hover {
+  background-color: #F57C00;
+}

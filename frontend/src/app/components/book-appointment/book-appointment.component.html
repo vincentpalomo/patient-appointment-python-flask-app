@@ -1,5 +1,5 @@
 <div class="booking-container">
-  <h2>{{updateMode ? 'Update' : 'Book'}} Appointment</h2>
+  <h2>{{isReschedule ? 'Reschedule' : (updateMode ? 'Update' : 'Book')}} Appointment</h2>
 
   <div class="form-group" *ngIf="!updateMode">
     <label for="search">Search Doctor:</label>
@@ -23,7 +23,9 @@
         {{doctor.name}} - {{doctor.specialization || 'General'}}
       </option>
     </select>
-    <small class="hint" *ngIf="updateMode">Cannot change doctor when updating appointment</small>
+    <small class="hint" *ngIf="updateMode">
+      {{isReschedule ? 'Cannot change doctor when rescheduling' : 'Cannot change doctor when updating'}} appointment
+    </small>
   </div>
 
   <div class="form-group">
@@ -51,7 +53,7 @@
 
   <div class="actions">
     <button (click)="bookAppointment()" [disabled]="!canBook">
-      {{updateMode ? 'Update' : 'Book'}} Appointment
+      {{isReschedule ? 'Reschedule' : (updateMode ? 'Update' : 'Book')}} Appointment
     </button>
     <button (click)="goBack()" class="secondary">Back</button>
   </div>

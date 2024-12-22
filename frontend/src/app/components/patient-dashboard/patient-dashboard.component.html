@@ -84,6 +84,11 @@
             Cancel Appointment
           </button>
         </div>
+        <div class="appointment-actions" *ngIf="appointment.status === 'canceled'">
+          <button class="reschedule-btn" (click)="rescheduleAppointment(appointment)">
+            Reschedule Appointment
+          </button>
+        </div>
       </div>
       <p *ngIf="!filteredAppointments.length" class="no-appointments">No appointments found.</p>
     </div>
@@ -91,8 +96,16 @@
 
   <div class="doctors-sidebar">
     <h3>Available Doctors</h3>
+    <div class="filter-group doctors-filter">
+      <select [(ngModel)]="availableDoctorsSpecFilter">
+        <option value="all">All Specializations</option>
+        <option *ngFor="let spec of availableSpecializations" [value]="spec">
+          {{spec}}
+        </option>
+      </select>
+    </div>
     <div class="doctors-list">
-      <div *ngFor="let doctor of doctors" class="doctor-card">
+      <div *ngFor="let doctor of filteredAvailableDoctors" class="doctor-card">
         <div class="doctor-info">
           <div class="doctor-name">{{doctor.name}}</div>
           <div class="doctor-specialization">{{doctor.specialization || 'General Practice'}}</div>

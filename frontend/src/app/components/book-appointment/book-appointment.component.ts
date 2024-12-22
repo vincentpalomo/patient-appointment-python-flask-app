@@ -32,6 +32,7 @@ export class BookAppointmentComponent implements OnInit {
   searchTerm: string = '';
   filteredDoctors: User[] = [];
   updateMode: boolean = false;
+  isReschedule: boolean = false;
   appointmentId: number | null = null;
 
   timeSlots: TimeSlot[] = [
@@ -62,6 +63,7 @@ export class BookAppointmentComponent implements OnInit {
     const state = this.router.getCurrentNavigation()?.extras?.state as { 
       selectedDoctor: any,
       updateMode: boolean,
+      isReschedule: boolean,
       appointmentId: number,
       currentDate: string,
       currentTime: string
@@ -73,10 +75,16 @@ export class BookAppointmentComponent implements OnInit {
       // If in update mode, set additional fields
       if (state.updateMode) {
         this.updateMode = true;
+        this.isReschedule = state.isReschedule || false;
         this.appointmentId = state.appointmentId;
-        this.selectedDate = new Date(state.currentDate).toISOString();
-        this.selectedTime = state.currentTime;
-        // Clear search term in update mode
+        
+        if (!this.isReschedule) {
+          // Only set date and time for updates, not reschedules
+          this.selectedDate = new Date(state.currentDate).toISOString();
+          this.selectedTime = state.currentTime;
+        }
+        
+        // Clear search term in update/reschedule mode
         this.searchTerm = '';
       }
     }
@@ -228,20 +236,27 @@ export class BookAppointmentComponent implements OnInit {
       status: 'scheduled'
     };
 
-    // If in update mode, use updateAppointment, otherwise use bookAppointment
-    const appointmentObservable = this.updateMode && this.appointmentId
+    // If in update mode but not reschedule, use updateAppointment
+    // Otherwise use bookAppointment
+    const appointmentObservable = (this.updateMode && !this.isReschedule && this.appointmentId)
       ? this.appointmentService.updateAppointment(this.appointmentId, appointment.date, appointment.time)
       : this.appointmentService.bookAppointment(appointment, this.canceledAppointments[this.selectedTime]);
 
     appointmentObservable.subscribe({
       next: (response) => {
         console.log(this.updateMode ? 'Update response:' : 'Booking response:', response);
-        alert(this.updateMode ? 'Appointment updated successfully!' : 'Appointment booked successfully!');
+        const message = this.isReschedule 
+          ? 'Appointment rescheduled successfully!'
+          : this.updateMode 
+            ? 'Appointment updated successfully!' 
+            : 'Appointment booked successfully!';
+        alert(message);
         this.router.navigate(['/patient-dashboard']);
       },
       error: (error) => {
         console.error('Detailed error:', error);
-        this.error = error.error?.msg || `Failed to ${this.updateMode ? 'update' : 'book'} appointment. Please try again.`;
+        const action = this.isReschedule ? 'reschedule' : (this.updateMode ? 'update' : 'book');
+        this.error = error.error?.msg || `Failed to ${action} appointment. Please try again.`;
       }
     });
   }
