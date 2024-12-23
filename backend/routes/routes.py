@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from datetime import datetime
 from models import db, Patient, Doctor, Appointment
 from validators import validate_email, validate_password, validate_phone, validate_name, validate_appointment_time, validate_appointment_status
+import logging
 
 api = Blueprint('api', __name__)
 
@@ -53,35 +54,40 @@ def login_patient():
 @api.route('/api/patients/profile', methods=['GET'])
 @jwt_required()
 def get_patient_profile():
-    current_user_id = get_jwt_identity()
-    patient = Patient.query.get_or_404(current_user_id)
+    try:
+        current_user_id = get_jwt_identity()
+        patient = Patient.query.get_or_404(current_user_id)
 
-    appointments = Appointment.query.filter_by(patient_id=current_user_id).all()
-    current_time = datetime.now()
+        appointments = Appointment.query.filter_by(patient_id=current_user_id).all()
+        current_time = datetime.now()
 
-    # Update status of past appointments to completed
-    for appointment in appointments:
-        if (appointment.status == 'scheduled' and 
-            appointment.appointment_time < current_time):
-            appointment.status = 'completed'
-    
-    db.session.commit()
+        # Update status of past appointments to completed
+        for appointment in appointments:
+            if (appointment.status == 'scheduled' and 
+                appointment.appointment_time < current_time):
+                appointment.status = 'completed'
+        
+        db.session.commit()
 
-    profile_data = {
-        'id': patient.id,
-        'name': patient.name,
-        'email': patient.email,
-        'phone': patient.phone,
-        'appointments': [{
-            'id': appointment.id,
-            'doctor_id': appointment.doctor_id,
-            'appointment_time': appointment.appointment_time.strftime("%Y-%m-%d %H:%M"),
-            'status': appointment.status,
-            'notes': appointment.notes
-        } for appointment in appointments]
-    }
+        profile_data = {
+            'id': patient.id,
+            'name': patient.name,
+            'email': patient.email,
+            'phone': patient.phone,
+            'appointments': [{
+                'id': appointment.id,
+                'doctor_id': appointment.doctor_id,
+                'appointment_time': appointment.appointment_time.strftime("%Y-%m-%d %H:%M"),
+                'status': appointment.status,
+                'notes': appointment.notes
+            } for appointment in appointments]
+        }
 
-    return jsonify(profile_data), 200
+        return jsonify(profile_data), 200
+
+    except Exception as e:
+        logging.error(f"Error fetching patient profile: {e}")
+        return jsonify({"msg": "Error fetching patient profile"}), 500
 
 # Update patient information
 @api.route('/api/patients/profile', methods=['PUT'])
