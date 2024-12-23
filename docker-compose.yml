@@ -21,4 +21,15 @@ services:
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
-      - DATABASE_URL=sqlite:///app.db 
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/appointment_scheduler  # Update this line
+    depends_on:
+      - db  # Ensure backend waits for db to be ready
+
+  db:
+    image: postgres:latest  # Use the latest PostgreSQL image
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: appointment_scheduler
+    ports:
+      - "5432-5435:5432"
