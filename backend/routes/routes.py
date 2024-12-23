@@ -56,6 +56,7 @@ def login_patient():
 def get_patient_profile():
     try:
         current_user_id = get_jwt_identity()
+        print(current_user_id)
         patient = Patient.query.get_or_404(current_user_id)
 
         appointments = Appointment.query.filter_by(patient_id=current_user_id).all()
