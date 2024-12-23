@@ -1,5 +1,5 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError, tap } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';
@@ -60,13 +60,18 @@ export class AuthService {
       password
     }).pipe(
       switchMap(response => {
-        // Store the JWT token
         if (this.isBrowser) {
           localStorage.setItem('access_token', response.access_token);
         }
         
-        // Fetch user profile
-        return this.http.get<UserProfile>(`${this.apiUrl}/api/patients/profile`);
+        // Create headers with the token
+        const headers = new HttpHeaders().set(
+          'Authorization',
+          `Bearer ${response.access_token}`
+        );
+        
+        // Fetch user profile with token
+        return this.http.get<UserProfile>(`${this.apiUrl}/api/patients/profile`, { headers });
       }),
       map(profile => {
         const user: User = {
@@ -85,7 +90,7 @@ export class AuthService {
       }),
       catchError(error => {
         console.error('Login error:', error);
-        return of(null);
+        return throwError(() => error);
       })
     );
   }
@@ -106,26 +111,54 @@ export class AuthService {
     return this.isBrowser ? localStorage.getItem('access_token') : null;
   }
 
-  // Get current user profile with appointments
   getUserProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${this.apiUrl}/api/patients/profile`);
+    const token = this.getToken();
+    if (!token) {
+      return throwError(() => new Error('No token found'));
+    }
+
+    const headers = new HttpHeaders().set(
+      'Authorization',
+      `Bearer ${token}`
+    );
+  
+    return this.http.get<UserProfile>(`${this.apiUrl}/api/patients/profile`, { headers }).pipe(
+      catchError(error => {
+        console.error('Error fetching user profile:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   updateProfile(updateData: { name: string; email: string; phone: string }) {
-    const currentUser = this.getCurrentUser();
-    if (!currentUser?.id) {
-      return throwError(() => new Error('No user logged in'));
+    const token = this.getToken();
+    if (!token) {
+      return throwError(() => new Error('No token found'));
     }
 
-    return this.http.put(`${this.apiUrl}/api/patients/profile`, updateData)
+    const headers = new HttpHeaders().set(
+      'Authorization',
+      `Bearer ${token}`
+    );
+
+    return this.http.put(`${this.apiUrl}/api/patients/profile`, updateData, { headers })
       .pipe(
         tap((response: any) => {
-          // Update stored user data
-          const updatedUser = {
-            ...currentUser,
-            ...updateData
-          };
-          localStorage.setItem('user', JSON.stringify(updatedUser));
+          const currentUser = this.getCurrentUser();
+          if (currentUser) {
+            const updatedUser = {
+              ...currentUser,
+              ...updateData
+            };
+            if (this.isBrowser) {
+              localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            }
+            this.currentUserSubject.next(updatedUser);
+          }
+        }),
+        catchError(error => {
+          console.error('Error updating profile:', error);
+          return throwError(() => error);
         })
       );
   }
