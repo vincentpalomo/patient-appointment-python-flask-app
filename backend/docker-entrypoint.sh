@@ -5,7 +5,7 @@ echo "Waiting for PostgreSQL to start..."
 
 # Function to test PostgreSQL connection
 postgres_ready() {
-  PGPASSWORD=$POSTGRES_PASSWORD psql -h "db" -U "postgres" -d "appointment_scheduler" -c "SELECT 1" >/dev/null 2>&1
+  PGPASSWORD=$POSTGRES_PASSWORD psql -h "db" -U "postgres" -d "postgres" -c "SELECT 1" >/dev/null 2>&1
 }
 
 # Wait for PostgreSQL to be ready with a timeout
@@ -21,7 +21,13 @@ if [ $RETRIES -eq 0 ]; then
   exit 1
 fi
 
-echo "PostgreSQL is up - executing migrations"
+echo "PostgreSQL is up - dropping and recreating database"
+
+# Drop and recreate database
+PGPASSWORD=$POSTGRES_PASSWORD psql -h "db" -U "postgres" -d "postgres" -c "DROP DATABASE IF EXISTS appointment_scheduler;"
+PGPASSWORD=$POSTGRES_PASSWORD psql -h "db" -U "postgres" -d "postgres" -c "CREATE DATABASE appointment_scheduler;"
+
+echo "Database recreated - executing migrations"
 
 # Initialize database
 echo "Running database migrations..."
