@@ -7,10 +7,12 @@ services:
       dockerfile: Dockerfile.frontend
     ports:
       - "3010:3000"
+    environment:
+      - API_URL=https://backend.vincentpalomo.dev
     depends_on:
       - backend
-    environment:
-      - API_URL=http://backend:5000
+    networks:
+      - app-network
 
   backend:
     build:
@@ -21,15 +23,35 @@ services:
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/appointment_scheduler  # Update this line
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/appointment_scheduler
+      - JWT_SECRET_KEY=your_jwt_secret_key_here  # Change this in production
     depends_on:
-      - db  # Ensure backend waits for db to be ready
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
 
   db:
-    image: postgres:latest  # Use the latest PostgreSQL image
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: appointment_scheduler
     ports:
       - "5432-5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

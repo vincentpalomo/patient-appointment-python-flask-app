@@ -1,7 +1,7 @@
 # routes.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from datetime import datetime
+from datetime import datetime, timedelta
 from models import db, Patient, Doctor, Appointment
 from validators import validate_email, validate_password, validate_phone, validate_name, validate_appointment_time, validate_appointment_status
 import logging
@@ -37,15 +37,14 @@ def login_patient():
     data = request.get_json()
     patient = Patient.query.filter_by(email=data['email']).first()
 
-    # Validate password
-    is_valid, message = validate_password(data['password'])
-    if not is_valid:
-        return jsonify({"msg": message}), 400
-
     # Check if patient exists and password is correct
     if patient and patient.check_password(data['password']):
-        # Create access token JWT Security
-        access_token = create_access_token(identity=patient.id)
+        # Create access token with 24 hour expiry
+        expires = timedelta(hours=24)
+        access_token = create_access_token(
+            identity=str(patient.id),  # Convert ID to string
+            expires_delta=expires
+        )
         return jsonify(access_token=access_token), 200
     
     return jsonify({"msg": "Bad email or password"}), 401
@@ -54,10 +53,9 @@ def login_patient():
 @api.route('/api/patients/profile', methods=['GET'])
 @jwt_required()
 def get_patient_profile():
-    print("get_patient_profile")
     try:
-        current_user_id = get_jwt_identity()
-        print(current_user_id)
+        # Get the patient ID from the JWT token and convert to int
+        current_user_id = int(get_jwt_identity())
         patient = Patient.query.get_or_404(current_user_id)
 
         appointments = Appointment.query.filter_by(patient_id=current_user_id).all()
@@ -87,6 +85,9 @@ def get_patient_profile():
 
         return jsonify(profile_data), 200
 
+    except ValueError as e:
+        logging.error(f"Invalid user ID format: {e}")
+        return jsonify({"msg": "Invalid user ID"}), 400
     except Exception as e:
         logging.error(f"Error fetching patient profile: {e}")
         return jsonify({"msg": "Error fetching patient profile"}), 500
