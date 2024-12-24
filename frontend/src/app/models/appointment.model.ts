@@ -1,9 +1,9 @@
 export interface Appointment {
-    id?: number;
+    id: number;
     patientId: number;
     doctorId: number;
     date: Date;
     time: string;
-    status: 'scheduled' | 'canceled' | 'completed';
+    status: string;
     notes?: string;
 } 
