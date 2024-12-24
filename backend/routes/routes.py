@@ -124,52 +124,60 @@ def update_patient_info():
 @api.route('/api/appointments/<int:appointment_id>', methods=['PUT'])
 @jwt_required()
 def update_appointment(appointment_id):
-    current_user_id = get_jwt_identity()
-    patient = Patient.query.get_or_404(current_user_id)
+    try:
+        current_user_id = int(get_jwt_identity())  # Convert string to int
+        patient = Patient.query.get_or_404(current_user_id)
 
-    data = request.get_json()
+        data = request.get_json()
 
-    # Get the appointment
-    appointment = Appointment.query.get(appointment_id)
-    if not appointment or appointment.patient_id != current_user_id:
-        return jsonify({"msg": "Appointment not found or you do not have permission to update it"}), 404
+        # Get the appointment
+        appointment = Appointment.query.get(appointment_id)
+        if not appointment or appointment.patient_id != current_user_id:
+            return jsonify({"msg": "Appointment not found or you do not have permission to update it"}), 404
 
-    # If appointment_time is provided, validate and update it
-    if 'appointment_time' in data:
-        # Validate appointment time
-        is_valid, message = validate_appointment_time(data['appointment_time'])
-        if not is_valid:
-            return jsonify({"msg": message}), 400
+        # If appointment_time is provided, validate and update it
+        if 'appointment_time' in data:
+            # Validate appointment time
+            is_valid, message = validate_appointment_time(data['appointment_time'])
+            if not is_valid:
+                return jsonify({"msg": message}), 400
 
-        new_time = datetime.strptime(data['appointment_time'], "%Y-%m-%d %H:%M")
+            new_time = datetime.strptime(data['appointment_time'], "%Y-%m-%d %H:%M")
 
-        # Check if the new time slot is available (unless it's the same time as current appointment)
-        if appointment.appointment_time != new_time:
-            existing_appointment = Appointment.query.filter_by(
-                doctor_id=appointment.doctor_id,
-                appointment_time=new_time,
-                status='scheduled'  # Only check for scheduled appointments
-            ).first()
-            
-            if existing_appointment and existing_appointment.id != appointment_id:
-                return jsonify({"msg": "Time slot is already taken"}), 400
+            # Check if the new time slot is available (unless it's the same time as current appointment)
+            if appointment.appointment_time != new_time:
+                existing_appointment = Appointment.query.filter_by(
+                    doctor_id=appointment.doctor_id,
+                    appointment_time=new_time,
+                    status='scheduled'  # Only check for scheduled appointments
+                ).first()
+                
+                if existing_appointment and existing_appointment.id != appointment_id:
+                    return jsonify({"msg": "Time slot is already taken"}), 400
 
-        # Update appointment time and status
-        appointment.appointment_time = new_time
-        appointment.status = 'scheduled'  # Set status to scheduled for both updates and reschedules
+            # Update appointment time and status
+            appointment.appointment_time = new_time
+            appointment.status = 'scheduled'  # Set status to scheduled for both updates and reschedules
 
-    # Update notes if provided
-    if 'notes' in data:
-        appointment.notes = data['notes']
+        # Update notes if provided
+        if 'notes' in data:
+            appointment.notes = data['notes']
 
-    db.session.commit()
+        db.session.commit()
 
-    return jsonify({
-        "msg": "Appointment updated successfully",
-        "appointment_time": appointment.appointment_time.strftime("%Y-%m-%d %H:%M"),
-        "status": appointment.status,
-        "notes": appointment.notes
-    }), 200
+        return jsonify({
+            "msg": "Appointment updated successfully",
+            "appointment_time": appointment.appointment_time.strftime("%Y-%m-%d %H:%M"),
+            "status": appointment.status,
+            "notes": appointment.notes
+        }), 200
+
+    except ValueError as e:
+        logging.error(f"Invalid user ID format: {e}")
+        return jsonify({"msg": "Invalid user ID"}), 400
+    except Exception as e:
+        logging.error(f"Error updating appointment: {e}")
+        return jsonify({"msg": "Error updating appointment"}), 500
 
 # Cancel an appointment
 @api.route('/api/appointments/<int:appointment_id>', methods=['DELETE'])
