@@ -54,6 +54,7 @@ def login_patient():
 @api.route('/api/patients/profile', methods=['GET'])
 @jwt_required()
 def get_patient_profile():
+    print("get_patient_profile")
     try:
         current_user_id = get_jwt_identity()
         print(current_user_id)
