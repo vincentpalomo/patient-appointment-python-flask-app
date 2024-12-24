@@ -1,19 +1,36 @@
 #!/bin/bash
 set -e
 
-# Wait for PostgreSQL to be ready
-until PGPASSWORD=$POSTGRES_PASSWORD psql -h "db" -U "postgres" -c '\q'; do
-  >&2 echo "PostgreSQL is unavailable - sleeping"
+echo "Waiting for PostgreSQL to start..."
+
+# Function to test PostgreSQL connection
+postgres_ready() {
+  PGPASSWORD=$POSTGRES_PASSWORD psql -h "db" -U "postgres" -d "appointment_scheduler" -c "SELECT 1" >/dev/null 2>&1
+}
+
+# Wait for PostgreSQL to be ready with a timeout
+RETRIES=30
+until postgres_ready || [ $RETRIES -eq 0 ]; do
+  echo "Waiting for PostgreSQL to be ready... $((RETRIES)) remaining attempts..."
+  RETRIES=$((RETRIES-1))
   sleep 1
 done
 
->&2 echo "PostgreSQL is up - executing migrations"
+if [ $RETRIES -eq 0 ]; then
+  echo "Failed to connect to PostgreSQL after 30 attempts. Exiting."
+  exit 1
+fi
+
+echo "PostgreSQL is up - executing migrations"
 
 # Initialize database
+echo "Running database migrations..."
 flask db upgrade
 
 # Seed the database
+echo "Seeding the database..."
 python seed.py
 
 # Start the Flask application
+echo "Starting Flask application..."
 exec flask run --host=0.0.0.0 --port=5000 

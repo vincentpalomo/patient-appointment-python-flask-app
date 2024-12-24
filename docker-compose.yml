@@ -8,7 +8,7 @@ services:
     ports:
       - "3010:3000"
     environment:
-      - API_URL=https://backend.vincentpalomo.dev
+      - API_URL=http://localhost:5010
     depends_on:
       - backend
     networks:
@@ -24,7 +24,8 @@ services:
       - FLASK_APP=app.py
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/appointment_scheduler
-      - JWT_SECRET_KEY=your_jwt_secret_key_here  # Change this in production
+      - JWT_SECRET_KEY=your_jwt_secret_key_here
+      - POSTGRES_PASSWORD=postgres
     depends_on:
       db:
         condition: service_healthy
@@ -34,11 +35,11 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: appointment_scheduler
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=appointment_scheduler
     ports:
-      - "5432-5435:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
